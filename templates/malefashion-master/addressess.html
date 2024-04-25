@@ -47,22 +47,30 @@
 
 <div class="container">
     <h2>Basic HTML Form</h2>
-   <form action="#" method="POST" action="/personalInfo">
-    <div class="form-group">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="userName" required value="{{ userObject.userName }}" >
-    </div>
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="userEmail" value="{{ userObject.userEmail }}" required>
-    </div>
-    <div class="form-group">
-        <label for="userPassword">Password:</label>
-        <input type="text" id="userPassword" name="userPassword" value="{{ userObject.userPassword }}" required>
+   <form method="POST" action="/userAddressess">
+        <div class="form-group">
+        <label for="userContact">User Address Id:</label>
+        <input type="text" id="userAddressId" name="userAddressId" value="{{ userObject.userAddressId }}" required readonly>
     </div>
     <div class="form-group">
         <label for="userContact">User Contact:</label>
         <input type="text" id="userContact" name="userContact" value="{{ userObject.userContact }}" required>
+    </div>
+    <div class="form-group">
+        <label for="userCountry">Country:</label>
+        <input type="text" id="userCountry" name="userCountry" value="{{ userObject.userCountry }}" required>
+    </div>
+    <div class="form-group">
+        <label for="userCity">City:</label>
+        <input type="text" id="userCity" name="userCity"  value="{{ userObject.userCity }}" required>
+    </div>
+    <div class="form-group">
+        <label for="userStreet">Street:</label>
+        <input type="text" id="userStreet" name="userStreet" value="{{ userObject.userStreet }}" required>
+    </div>
+    <div class="form-group">
+        <label for="userZipCode">Zip Code:</label>
+        <input type="text" id="userZipCode" name="userZipCode" value="{{ userObject.userZipCode }}" required>
     </div>
     <input type="submit" value="Submit">
 </form>

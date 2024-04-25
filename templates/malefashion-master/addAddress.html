@@ -46,23 +46,27 @@
 <body>
 
 <div class="container">
-    <h2>Basic HTML Form</h2>
-   <form action="#" method="POST" action="/personalInfo">
-    <div class="form-group">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="userName" required value="{{ userObject.userName }}" >
-    </div>
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="userEmail" value="{{ userObject.userEmail }}" required>
-    </div>
-    <div class="form-group">
-        <label for="userPassword">Password:</label>
-        <input type="text" id="userPassword" name="userPassword" value="{{ userObject.userPassword }}" required>
-    </div>
+    <h2>Add Address</h2>
+   <form method="POST" action="/addAddress">
     <div class="form-group">
         <label for="userContact">User Contact:</label>
-        <input type="text" id="userContact" name="userContact" value="{{ userObject.userContact }}" required>
+        <input type="text" id="userContact" name="userContact" required>
+    </div>
+    <div class="form-group">
+        <label for="userCountry">Country:</label>
+        <input type="text" id="userCountry" name="userCountry" required>
+    </div>
+    <div class="form-group">
+        <label for="userCity">City:</label>
+        <input type="text" id="userCity" name="userCity" required>
+    </div>
+    <div class="form-group">
+        <label for="userStreet">Street:</label>
+        <input type="text" id="userStreet" name="userStreet"  required>
+    </div>
+    <div class="form-group">
+        <label for="userZipCode">Zip Code:</label>
+        <input type="text" id="userZipCode" name="userZipCode"  required>
     </div>
     <input type="submit" value="Submit">
 </form>
