@@ -3,7 +3,13 @@ from flask import request
 from flask import redirect
 from flask import render_template
 import sqlite3
+import os
 import databasee
+from werkzeug.utils import secure_filename
+
+# Inside your code
+
+
 from flask import url_for
 from flask import session
 
@@ -44,6 +50,51 @@ def addAddress():
 
     return render_template("malefashion-master/addAddress.html")
 
+
+
+@app.route("/sell", methods=["GET", "POST"])
+def sell():
+    if request.method == "GET":
+        if not databasee.is_user_logged_in(session):
+            return redirect(url_for("login"))
+
+        categories = databasee.execute_query("SELECT categoryName FROM category")
+  
+        return render_template("malefashion-master/sell.html", categories=categories)
+    
+    elif request.method == "POST":
+        print("I am in POST")
+    
+    # Check if the request contains files
+        if 'images[]' in request.files:
+            print("Files found")
+            productName = request.form.get("productName", "")
+            productCondition = request.form.get("productCondition", "")
+            productDescription = request.form.get("productDescription", "")
+            productPrice = request.form.get("productPrice", "")
+
+        # Insert product details into the database
+            databasee.execute_query("INSERT INTO product (productName, productCondition, productDescription, productPrice,userEmail) VALUES (?,?, ?, ?, ?)", 
+                                (productName, productCondition, productDescription, productPrice,session["userEmail"]))
+        
+        # Get the ID of the latest inserted product
+            latestProductId = databasee.execute_query("SELECT MAX(productId) FROM product")[0][0]
+        
+        # Process each image
+            images = request.files.getlist('images[]')
+            for i, image in enumerate(images):
+            # Save the image to a directory
+                if image.filename != '':
+                    filename = secure_filename(image.filename) # type: ignore
+                    path = os.path.join('static', 'img', f"{latestProductId}_{i+1}_{filename}")
+                    image.save(path)
+                
+                # Insert the image path into the database
+                databasee.execute_query("INSERT INTO productImages (productId, imagePath) VALUES (?, ?)", (latestProductId, path))
+
+
+    
+    return redirect(url_for("home"))
 
 
 

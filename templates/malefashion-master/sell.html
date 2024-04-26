@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Product</title>
+<style>
+    /* Style for the zoomed image */
+    #zoomedImage {
+        display: none;
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border: 2px solid black;
+        background-color: white;
+        overflow: hidden;
+        z-index: 9999;
+    }
+    #zoomedImage img {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+</head>
+<body>
+
+<h2>Add Product</h2>
+
+<form id="productForm" enctype="multipart/form-data" action="/sell" method="POST">
+    <label for="selectCategory">Select Category:</label>
+<select id="selectCategory" name="selectCategory">
+    <option value="Electronics">Electronics</option>
+    <option value="Fashion">Fashion</option>
+    <option value="Home & Garden">Home & Garden</option>
+    <option value="Collectibles & Art">Collectibles & Art</option>
+    <option value="Motors">Motors</option>
+    <option value="Toys & Hobbies">Toys & Hobbies</option>
+    <option value="Sporting Goods">Sporting Goods</option>
+    <option value="Health & Beauty">Health & Beauty</option>
+    <option value="Business & Industrial">Business & Industrial</option>
+    <option value="Crafts">Crafts</option>
+    <option value="Coins & Paper Money">Coins & Paper Money</option>
+    <option value="Antiques">Antiques</option>
+    <option value="Baby">Baby</option>
+    <option value="Books">Books</option>
+    <option value="DVDs & Movies">DVDs & Movies</option>
+    <option value="Music">Music</option>
+    <option value="Crafts">Crafts</option>
+    <option value="Pet Supplies">Pet Supplies</option>
+    <option value="Computers/Tablets & Networking">Computers/Tablets & Networking</option>
+    <option value="Video Games & Consoles">Video Games & Consoles</option>
+    <option value="Cell Phones & Accessories">Cell Phones & Accessories</option>
+    <option value="Cameras & Photo">Cameras & Photo</option>
+    <option value="Jewelry & Watches">Jewelry & Watches</option>
+    <option value="Travel">Travel</option>
+    <option value="Musical Instruments & Gear">Musical Instruments & Gear</option>
+    <option value="Consumer Electronics">Consumer Electronics</option>
+    <option value="Art & Craft Supplies">Art & Craft Supplies</option>
+    <option value="Entertainment Memorabilia">Entertainment Memorabilia</option>
+    <option value="Gift Cards & Coupons">Gift Cards & Coupons</option>
+    <option value="Business & Industrial">Business & Industrial</option>
+    <option value="Cameras & Photo">Cameras & Photo</option>
+    <option value="Cell Phones & Accessories">Cell Phones & Accessories</option>
+    <option value="Clothing, Shoes & Accessories">Clothing, Shoes & Accessories</option>
+    <option value="Coins & Paper Money">Coins & Paper Money</option>
+    <option value="Collectibles">Collectibles</option>
+    <option value="Computers/Tablets & Networking">Computers/Tablets & Networking</option>
+    <option value="Consumer Electronics">Consumer Electronics</option>
+    <option value="Crafts">Crafts</option>
+    <option value="Dolls & Bears">Dolls & Bears</option>
+    <option value="DVDs & Movies">DVDs & Movies</option>
+    <option value="Entertainment Memorabilia">Entertainment Memorabilia</option>
+    <option value="Health & Beauty">Health & Beauty</option>
+    <option value="Home & Garden">Home & Garden</option>
+    <option value="Jewelry & Watches">Jewelry & Watches</option>
+    <option value="Music">Music</option>
+    <option value="Musical Instruments & Gear">Musical Instruments & Gear</option>
+    <option value="Pet Supplies">Pet Supplies</option>
+    <option value="Pottery & Glass">Pottery & Glass</option>
+    <option value="Sporting Goods">Sporting Goods</option>
+    <option value="Sports Mem, Cards & Fan Shop">Sports Mem, Cards & Fan Shop</option>
+    <option value="Stamps">Stamps</option>
+    <option value="Toys & Hobbies">Toys & Hobbies</option>
+    <option value="Travel">Travel</option>
+    <option value="Video Games & Consoles">Video Games & Consoles</option>
+</select>
+
+    <br><br>
+    
+    <label for="productName">Product Name:</label>
+    <input type="text" id="productName" name="productName" required>
+    <br><br>
+
+    <label for="productPrice">Product price:</label>
+    <input type="text" id="productPrice" name="productPrice" required>
+    <br><br>
+    
+    <label for="description">Description:</label><br>
+    <textarea id="description" name="productDescription" rows="4" cols="50"></textarea>
+    <br><br>
+    
+    <label for="condition">Condition:</label><br>
+    <input type="radio" id="newCondition" name="productCondition" value="new" required>
+    <label for="newCondition">New</label>
+    <input type="radio" id="usedCondition" name="productCondition" value="used">
+    <label for="usedCondition">Used</label>
+    <br><br>
+    
+    <label for="images">Upload Images (up to 20):</label><br>
+    <input type="file" id="images" name="images[]" accept="image/*" multiple>
+    <br><br>
+    
+    <button type="submit">Add Product</button>
+    
+</form>
+
+<!-- Zoomed image container -->
+<div id="zoomedImage"></div>
+
+</body>
+</html>
