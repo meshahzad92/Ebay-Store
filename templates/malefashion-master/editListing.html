@@ -1,0 +1,76 @@
+<!-- edit_listing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Listing</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Edit Listing</h1>
+        <form action="/updateListing" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="productId" value="{{ product[0][0] }}">
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" class="form-control" id="productName" name="productName" value="{{ product[0][1] }}">
+            </div>
+            <div class="form-group">
+                <label for="productCondition">Product Condition </label>
+                <input type="text" class="form-control" id="productCondition" name="productCondition" value="{{ product[0][2]}}">
+            </div>
+            <div class="form-group">
+                <label for="productDescription">Product Description </label>
+                <input type="text" class="form-control" id="productDescription" name="productDescription" value="{{ product[0][3]}}">
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Product Price </label>
+                <input type="text" class="form-control" id="productPrice" name="productPrice" value="{{ product[0][4]}}">
+            </div>
+            <div class="form-group">
+                <label for="productCategory">Product Category </label>
+                <input type="text" class="form-control" id="productCategory" name="productCategory" value="{{ product[0][6]}}">
+            </div>
+    
+            <label for="images">Upload Images (up to 20):</label><br>
+            <input type="file" id="images" name="images[]" accept="image/*" multiple>
+            <br><br>
+            <button type="button" class="btn btn-sm btn-primary" id="addImage">Add Image</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+
+   </body>
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Function to add new image upload field
+        $('#addImage').click(function() {
+            var imageCount = $('#imageUploadContainer').children('.form-group').length + 1;
+            var newImageField = `
+                <div class="form-group">
+                    <label for="image${imageCount}">Image ${imageCount}</label>
+                    <input type="file" class="form-control-file" id="image${imageCount}" name="image${imageCount}" accept="image/*">
+                    <button type="button" class="btn btn-sm btn-danger deleteImage">Delete Image</button>
+                </div>
+            `;
+            $('#imageUploadContainer').append(newImageField);
+        });
+
+        // Function to delete image upload field
+        $(document).on('click', '.deleteImage', function() {
+            $(this).parent().remove();
+            // Renumber the remaining image fields
+            $('#imageUploadContainer .form-group').each(function(index) {
+                $(this).find('label').text(`Image ${index + 1}`);
+                $(this).find('input').attr('id', `image${index + 1}`).attr('name', `image${index + 1}`);
+            });
+        });
+    </script>
+
+   </html>

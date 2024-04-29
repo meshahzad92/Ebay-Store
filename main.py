@@ -15,6 +15,10 @@ from flask import session
 
 app = Flask(__name__)
 app.secret_key = '03025202775Abc$'  # replace 'your secret key' with your actual secret key
+@app.route("/temp2")
+def temp2():
+    return render_template("malefashion-master/temp2.html")
+
 
 @app.route("/")
 def home():
@@ -74,29 +78,44 @@ def sell():
             productPrice = request.form.get("productPrice", "")
 
         # Insert product details into the database
-            databasee.execute_query("INSERT INTO product (productName, productCondition, productDescription, productPrice,userEmail) VALUES (?,?, ?, ?, ?)", 
-                                (productName, productCondition, productDescription, productPrice,session["userEmail"]))
+            databasee.execute_query("INSERT INTO product (productName, productCondition, productDescription, productPrice, userEmail, category) VALUES (?, ?, ?, ?, ?, ?)", 
+                        (productName, productCondition, productDescription, productPrice, session["userEmail"], request.form.get("selectCategory", "")))
+
         
         # Get the ID of the latest inserted product
             latestProductId = databasee.execute_query("SELECT MAX(productId) FROM product")[0][0]
         
-        # Process each image
+# Process each image
             images = request.files.getlist('images[]')
             for i, image in enumerate(images):
-            # Save the image to a directory
+    # Save the image to a directory
                 if image.filename != '':
                     filename = secure_filename(image.filename) # type: ignore
-                    path = os.path.join('static', 'img', f"{latestProductId}_{i+1}_{filename}")
+                    path = os.path.join('static/productImages/', f"{latestProductId}_{i+1}_{filename}")
                     image.save(path)
-                
-                # Insert the image path into the database
-                databasee.execute_query("INSERT INTO productImages (productId, imagePath) VALUES (?, ?)", (latestProductId, path))
 
+    
+    # Insert the image path into the database
+                databasee.execute_query("INSERT INTO productImages (productId, imagePath) VALUES (?, ?)", (latestProductId, path))
 
     
     return redirect(url_for("home"))
 
+@app.route("/myListings",methods=["GET","POST"])
+def myListings():
+    if request.method=="GET":
+        if  databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        products=databasee.execute_query("select * from product where userEmail=?",(session["userEmail"],))
+        imagePaths=[]
+        for product in products:
+            imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],)))
+        for index in range(len(imagePaths)):
+            print(imagePaths[index])
+        return render_template("malefashion-master/myListings.html",products=products,imagePaths=imagePaths)   
 
+
+   
 
 @app.route("/updateAddress", methods=["GET", "POST"])
 def updateAddress():
@@ -228,8 +247,7 @@ def signUp():
         else:
             print("i am in else")
             print("successfully inserted")
-            databasee.Users.insertUser(userPassword, userEmail, userName, userContact)
-            databasee.addressess.insertAddress("","","","","","",userEmail)
+            databasee.execute_query("insert into addresses (userContact,userCountry,userCity,userStreet,userZipCode,userEmail) values(?,?,?,?,?,?)",(userContact,"","","","",userEmail))
             if 'referrer' in session:
                 referrer = session.pop('referrer')  # Get and remove the referrer URL from session
                 return redirect(referrer)
@@ -265,10 +283,16 @@ def personalInfo():
         new_name = request.form["userName"]
         new_password = request.form["userPassword"]
         new_contact = request.form["userContact"]
+        new_email = request.form["userEmail"]
         # Update the database with the edited information
         user_email = session["userEmail"]  
-        databasee.Users.updateUser(user_email, new_name, new_password, new_contact,session["userEmail"])
-        # Check if there's a referrer URL stored in the session
+        databasee.execute_query("UPDATE users SET userPassword = ?, userEmail = ?, userName = ?, userContact = ? WHERE userEmail = ?",(
+                new_password, new_email, new_name, new_contact, user_email
+
+
+        ))
+        # databasee.Users.updateUser(user_email, new_name, new_password, new_contact,session["userEmail"])
+        # # Check if there's a referrer URL stored in the session
         if 'referrer' in session:
             referrer = session.pop('referrer')  # Get and remove the referrer URL from session
             return redirect(referrer)  # Redirect the user back to the referrer URL
@@ -318,6 +342,97 @@ def clear():
 def shop():
     if request.method == "GET":
         return render_template('malefashion-master/shop.html')
+
+@app.route("/product", methods=["GET", "POST"])
+def product():
+    if request.method == "GET":
+        print("I am in GET")
+        return render_template('malefashion-master/product.html', products=None, imagePaths=None)
+    
+    if request.method == "POST":
+        print("I am in POST")
+        product_id = request.form.get('productId')
+        # Fetch product information and image paths using a JOIN query
+        query = """
+            SELECT product.*, productImages.imagePath
+            FROM product
+            INNER JOIN productImages ON product.productId = productImages.productId
+            WHERE product.productId = ?
+        """
+        products_with_images = databasee.execute_query(query, (product_id,))
+        
+        # Extract product information and image paths from the query result
+        products = []
+        imagePaths = []
+        for row in products_with_images:
+            # product_info = row[:6]  # Assuming first 6 columns contain product information
+            image_path = row[7]     # Assuming the 7th column contains the image path
+            # products.append(product_info)
+            imagePaths.append(image_path)
+        products=databasee.execute_query("select * from product where productId=?",(product_id,))   
+        
+        # Print the retrieved data for debugging
+        print("Product Information:")
+        print(products)
+        print("Image Paths:")
+        print(imagePaths)
+
+        return render_template('malefashion-master/product.html', products=products, imagePaths=imagePaths)
+
+@app.route("/shop-list", methods=["GET", "POST"] )
+def shop_list():
+    if request.method=="GET":
+        if  databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        products=databasee.execute_query("select * from product ",())
+        imagePaths=[]
+        print(products)
+        for product in products:
+            print(product[0])
+            imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages where  productId=?  and imagePath is not null LIMIT 1 ", (product[0],)))
+        for index in range(len(imagePaths)):
+            print(imagePaths[index])
+        return render_template("malefashion-master/shop-grid.html",products=products,imagePaths=imagePaths)   
+
+
+@app.route("/editListing", methods=["GET", "POST"])
+def editListing():
+    if request.method == "GET":
+        product_id = request.form.get('productId')
+        
+    if request.method == "POST":
+        
+        product_id = request.form.get('productId')
+        product=databasee.execute_query("select * from product where productId=?",(product_id,))
+
+        
+        return render_template('malefashion-master/editListing.html', product=product)
+
+
+@app.route("/updateListing", methods=["GET", "POST"])
+def updateListing():
+    if request.method == "POST":
+        product_id = request.form.get('productId')
+        productName = request.form.get("productName", "")
+        productCondition = request.form.get("productCondition", "")
+        productDescription = request.form.get("productDescription", "")
+        productPrice = request.form.get("productPrice", "")
+
+        databasee.execute_query("UPDATE product SET productName = ?, productCondition = ?, productDescription = ?, productPrice = ? WHERE productId = ?", 
+            (productName, productCondition, productDescription, productPrice, product_id))
+
+        images = request.files.getlist('images[]')
+        for i, image in enumerate(images):
+            if image.filename != '':
+                filename = secure_filename(image.filename)
+                path = os.path.join('static/productImages/', f"{product_id}_{i+1}_{filename}")
+                image.save(path)
+
+                # Insert the image path into the database
+                databasee.execute_query("INSERT INTO productImages (productId, imagePath) VALUES (?, ?)", (product_id, path))
+
+        return redirect(url_for("myListings"))
+
 
 if __name__ == '__main__':
     app.run()
