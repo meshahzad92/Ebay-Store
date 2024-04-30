@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 # Inside your code
 
 
-from flask import url_for
+from flask import url_for,flash
 from flask import session
 
 app = Flask(__name__)
@@ -19,10 +19,12 @@ app.secret_key = '03025202775Abc$'  # replace 'your secret key' with your actual
 def temp2():
     return render_template("malefashion-master/temp2.html")
 
-
 @app.route("/")
 def home():
-    return render_template("malefashion-master/home.html")
+    image_url = url_for('static', filename='images/bmw.jpg')
+    return render_template("malefashion-master/home.html",image_url=image_url)
+
+
 
 @app.route("/userProfile",methods=["GET","POST"])
 def userProfile():
@@ -114,8 +116,17 @@ def myListings():
             print(imagePaths[index])
         return render_template("malefashion-master/myListings.html",products=products,imagePaths=imagePaths)   
 
+@app.route("/removeFromWishList",methods=["GET","POST"])
+def removeFromWishList():
+    if  request.method=="GET":
+        return redirect(url_for("home"))
+    
+    if request.method=="POST":
+        product_id = request.form.get('productId')
+        print(product_id)
+        databasee.execute_query("delete from wishlist where productId=? and userEmail=?", (product_id, session["userEmail"]))
+        return redirect(url_for("viewWishList"))
 
-   
 
 @app.route("/updateAddress", methods=["GET", "POST"])
 def updateAddress():
@@ -199,7 +210,7 @@ def login():
             print("users is not empty here")
             print(userPassword)
             # Check if the password matches
-            if  users[0][1]== userPassword:
+            if users and len(users) > 0 and users[0][1] == userPassword:
                 print("inside storing in session")
                 # Storing user information in session
                 session["userName"] = users[0][3]
@@ -248,13 +259,10 @@ def signUp():
             print("i am in else")
             print("successfully inserted")
             databasee.execute_query("insert into addresses (userContact,userCountry,userCity,userStreet,userZipCode,userEmail) values(?,?,?,?,?,?)",(userContact,"","","","",userEmail))
-            if 'referrer' in session:
-                referrer = session.pop('referrer')  # Get and remove the referrer URL from session
-                return redirect(referrer)
+            databasee.execute_query("INSERT INTO users (userPassword, userEmail, userName, userContact) VALUES (?, ?, ?, ?)", (userPassword, userEmail, userName, userContact)) 
             return redirect(url_for('login'))
     else:
         return render_template('malefashion-master/signUp.html')
-
 
 @app.route("/personalInfo", methods=["GET", "POST"])
 def personalInfo():
@@ -394,6 +402,28 @@ def shop_list():
             print(imagePaths[index])
         return render_template("malefashion-master/shop-grid.html",products=products,imagePaths=imagePaths)   
 
+@app.route('/wishlist', methods=['GET', 'POST'])
+def wishlist():
+    if request.method == 'POST':
+        # Process the product ID and add it to the wishlist
+        product_id = request.form.get('productId')
+        
+        # Check if the product is already in the wishlist
+        existing_product = databasee.execute_query("SELECT * FROM wishlist WHERE productId = ? AND userEmail = ?", (product_id, session["userEmail"]))
+        
+        if existing_product:
+            # Product already exists in the wishlist, you can handle this case as per your requirement
+            flash("Product already exists in your wishlist.")
+        else:
+            # Product doesn't exist in the wishlist, insert it
+            databasee.execute_query("INSERT INTO wishlist (productId, userEmail) VALUES (?, ?)", (product_id, session["userEmail"]))
+            flash("Product added to wishlist successfully.")
+        
+        return redirect(url_for('home'))  # Redirect to home page after adding to wishlist
+
+    # Handle GET request to view wishlist
+    # You can render a wishlist template here
+    return 'View Wishlist'  # Example response for viewing wishlist
 
 @app.route("/editListing", methods=["GET", "POST"])
 def editListing():
@@ -417,9 +447,10 @@ def updateListing():
         productCondition = request.form.get("productCondition", "")
         productDescription = request.form.get("productDescription", "")
         productPrice = request.form.get("productPrice", "")
-
-        databasee.execute_query("UPDATE product SET productName = ?, productCondition = ?, productDescription = ?, productPrice = ? WHERE productId = ?", 
-            (productName, productCondition, productDescription, productPrice, product_id))
+        productCategory = request.form.get("productCategory", "")
+        print(productName, productCondition, productDescription, productPrice)
+        databasee.execute_query("UPDATE product SET productName = ?, productCondition = ?, productDescription = ?, productPrice = ? , category=? WHERE productId = ?", 
+            (productName, productCondition, productDescription, productPrice, productCategory,product_id))
 
         images = request.files.getlist('images[]')
         for i, image in enumerate(images):
@@ -432,6 +463,69 @@ def updateListing():
                 databasee.execute_query("INSERT INTO productImages (productId, imagePath) VALUES (?, ?)", (product_id, path))
 
         return redirect(url_for("myListings"))
+
+@app.route("/cart", methods=["GET", "POST"])
+def cart():
+
+    if request.method == "POST":
+        # Process the product ID and add it to the cart
+        # You can perform any
+        product_id = request.form.get('productId')
+        print(product_id)
+        databasee.execute_query("INSERT INTO cart (userEmail, productId) VALUES (?, ?)", (session["userEmail"], product_id))
+        databasee.execute_query("DELETE FROM wishlist WHERE productId = ? AND userEmail = ?", (product_id, session["userEmail"]))
+        return redirect(url_for('home'))
+    
+@app.route("/viewCart", methods=["GET", "POST"])
+def viewCart():
+    if request.method == "GET":
+        if  databasee.is_user_logged_in(session)==False:
+            return redirect(url_for("login"))
+        
+        products = databasee.execute_query("SELECT product.productId, product.productName, product.productCondition, product.productDescription, product.productPrice, product.category FROM cart JOIN product ON cart.productId = product.productId WHERE cart.userEmail = ?", (session["userEmail"],))
+        if products:
+            imagePaths = []
+            for product in products:
+                imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (product[0],)))
+        
+            print(products)
+            print(imagePaths)
+
+            return render_template("malefashion-master/cart.html", products=products, imagePaths=imagePaths)
+        else:
+            return redirect(url_for("home"))
+
+      
+    else:
+            return redirect(url_for("home"))
+    
+@app.route("/removeFromCart", methods=["GET", "POST"])  
+def removeFromCart():
+    if request.method == "GET":
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        product_id = request.form.get('productId')
+        databasee.execute_query("DELETE FROM cart WHERE productId = ? AND userEmail = ?", (product_id, session["userEmail"]))
+        return redirect(url_for("viewCart"))
+    
+
+
+
+
+@app.route("/viewWishList", methods=["GET", "POST"] )
+def viewWishList():
+    if request.method=="GET":
+        if  databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        
+        products=databasee.execute_query("select product.productId,product.productName,product.productCondition,product.productDescription,product.productPrice,product.category from wishlist  join product on product.productId=wishlist.productId where product.userEmail= ?",(session["userEmail"],))
+        print(products)
+        imagePaths=[]
+        for product in products:
+            imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],)))
+        for index in range(len(imagePaths)):
+            print(imagePaths[index])
+        return render_template("malefashion-master/viewWishList.html",products=products,imagePaths=imagePaths)  
 
 
 if __name__ == '__main__':

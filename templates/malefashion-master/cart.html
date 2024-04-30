@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+<div class="container bg-white rounded-top mt-5" id="zero-pad">
+    <div class="row d-flex justify-content-center">
+        <div class="col-lg-10 col-12 pt-3">
+            <div class="d-flex">
+<div class="pt-1">
+    <a href="{{ url_for('home') }}"><h4>Home</h4></a>
+</div>                                      
+            </div>
+            <div class="d-flex flex-column pt-4">
+                <div><h5 class="text-uppercase font-weight-normal">shopping bag</h5></div>
+          <div class="font-weight-normal">{{ products|length }} Items</div>
+            </div>
+            <div class="d-flex flex-row px-lg-5 mx-lg-5 mobile" id="heading">
+                <div class="px-lg-5 mr-lg-5" id="produc">PRODUCTS</div>
+                <div class="px-lg-5 ml-lg-5" id="prc">PRICE</div>
+               
+                <div class="px-lg-5 ml-lg-5" id="total">    TOTAL</div>
+            </div>
+            {% for index in range(products|length) %}
+            <div class="d-flex flex-row justify-content-between align-items-center pt-lg-4 pt-2 pb-3 border-bottom mobile">
+                <div class="d-flex flex-row align-items-center">
+                    {% if imagePaths[index] %}
+            <div>
+                <img 
+                src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}"
+                width="150" height="150" alt="" id="image_{{ index }}" class="product-image" data-product-id="{{ products[index][0] }}">
+            </div>
+
+
+
+                  
+                    {% endif %}
+           <div class="d-flex flex-column pl-md-3 pl-1">
+                <div><h6>{{ products[index][1] }}</h6></div>
+                <div >ID: <span class="pl-2">{{ products[index][0] }}</span></div>
+                <div>Condition: <span class="pl-3">{{ products[index][2] }}</span></div>
+            </div>                    
+                </div>
+                <div class="pl-md-0 pl-1"><b>{{ products[index][4] }}</b></div>
+
+                <div class="pl-md-0 pl-1"><b>{{ products[index][4] }}</b></div>
+<button class="btn btn-danger remove-from-cart-btn" data-product-id="{{products[index][0]}}">Remove</button>
+
+            </div>
+            {% endfor %}
+ 
+
+        </div>
+    </div>
+</div>
+<div class="container bg-light rounded-bottom py-4" id="zero-pad">
+    <div class="row d-flex justify-content-center">
+        <div class="col-lg-10 col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn btn-sm bg-light border border-dark">GO BACK</button>
+                </div>
+                <div class="px-md-0 px-1" id="footer-font">
+                    <b class="pl-md-4">SUBTOTAL<span class="pl-md-4">$61.78</span></b>
+                </div>
+                <div>
+                    <button class="btn btn-sm bg-dark text-white px-lg-5 px-3">CONTINUE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Get all elements with the class 'product-image'
+    const productImages = document.querySelectorAll('.product-image');
+
+    // Add a click event listener to each image
+    productImages.forEach(function(image) {
+        image.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default behavior (navigating to a new page)
+
+            const productId = this.getAttribute('data-product-id'); // Get the product ID from the data-product-id attribute
+
+            // Create a form element
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/product'; // Adjust the URL as needed
+
+            // Create a hidden input field for the product ID
+            const productIdField = document.createElement('input');
+            productIdField.type = 'hidden';
+            productIdField.name = 'productId';
+            productIdField.value = productId;
+
+            // Append the input field to the form
+            form.appendChild(productIdField);
+
+            // Append the form to the document body
+            document.body.appendChild(form);
+
+            // Submit the form
+            form.submit();
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll('.remove-from-cart-btn').forEach(function(image) {
+        image.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default behavior (navigating to a new page)
+
+           const productId = this.getAttribute('data-product-id');// Get the product ID from the data-product-id attribute
+
+            // Create a form element
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/removeFromCart'; // Adjust the URL as needed
+
+            // Create a hidden input field for the product ID
+            const productIdField = document.createElement('input');
+            productIdField.type = 'hidden';
+            productIdField.name = 'productId';
+            productIdField.value = productId;
+
+            // Append the input field to the form
+            form.appendChild(productIdField);
+
+            // Append the form to the document body
+            document.body.appendChild(form);
+
+            // Submit the form
+            form.submit();
+        });
+    });
+</script>
+
+
+
+
+</html>

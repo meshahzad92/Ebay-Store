@@ -174,7 +174,72 @@
 				<div class="cat-nav-head">
 					<div class="row">
 						<div class="col-lg-3">
-				
+							<!-- <div class="all-category">
+								<h3 class="cat-heading"><i class="fa fa-bars" aria-hidden="true"></i>CATEGORIES</h3>
+								<ul class="main-category">
+									<li><a href="#">New Arrivals <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+										<ul class="sub-category">
+											<li><a href="#">accessories</a></li>
+											<li><a href="#">best selling</a></li>
+											<li><a href="#">top 100 offer</a></li>
+											<li><a href="#">sunglass</a></li>
+											<li><a href="#">watch</a></li>
+											<li><a href="#">man’s product</a></li>
+											<li><a href="#">ladies</a></li>
+											<li><a href="#">westrn dress</a></li>
+											<li><a href="#">denim </a></li>
+										</ul>
+									</li>
+									<li class="main-mega"><a href="#">best selling <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+										<ul class="mega-menu">
+											<li class="single-menu">
+												<a href="#" class="title-link">Shop Kid's</a>
+												<div class="image">
+													<img src="https://via.placeholder.com/225x155" alt="#">
+												</div>
+												<div class="inner-link">
+													<a href="#">Kids Toys</a>
+													<a href="#">Kids Travel Car</a>
+													<a href="#">Kids Color Shape</a>
+													<a href="#">Kids Tent</a>
+												</div>
+											</li>
+											<li class="single-menu">
+												<a href="#" class="title-link">Shop Men's</a>
+												<div class="image">
+													<img src="https://via.placeholder.com/225x155" alt="#">
+												</div>
+												<div class="inner-link">
+													<a href="#">Watch</a>
+													<a href="#">T-shirt</a>
+													<a href="#">Hoodies</a>
+													<a href="#">Formal Pant</a>
+												</div>
+											</li>
+											<li class="single-menu">
+												<a href="#" class="title-link">Shop Women's</a>
+												<div class="image">
+													<img src="https://via.placeholder.com/225x155" alt="#">
+												</div>
+												<div class="inner-link">
+													<a href="#">Ladies Shirt</a>
+													<a href="#">Ladies Frog</a>
+													<a href="#">Ladies Sun Glass</a>
+													<a href="#">Ladies Watch</a>
+												</div>
+											</li>
+										</ul>
+									</li>
+									<li><a href="#">accessories</a></li>
+									<li><a href="#">top 100 offer</a></li>
+									<li><a href="#">sunglass</a></li>
+									<li><a href="#">watch</a></li>
+									<li><a href="#">man’s product</a></li>
+									<li><a href="#">ladies</a></li>
+									<li><a href="#">westrn dress</a></li>
+									<li><a href="#">denim </a></li>
+								</ul>
+							</div> -->
 						</div>
 						<div class="col-lg-9 col-12">
 							<div class="menu-area">
@@ -193,7 +258,7 @@
 															<li><a href="checkout.html">Checkout</a></li>
 														</ul>
 													</li>
-													<li><a href="/shop-list">Catalogue</a></li>									
+													<li><a href="/shop-grid">Catalogue</a></li>									
 													<li><a href="#">Blog<i class="ti-angle-down"></i></a>
 														<ul class="dropdown">
 															<li><a href="blog-single-sidebar.html">Blog Single Sidebar</a></li>
@@ -245,7 +310,7 @@
 {% if imagePaths[index] %}
     <div class="col-md-3 mt-1">
         <div class="zoom-effect">
-            <img class="img-fluid img-responsive rounded product-image" src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}" style="width: 100%; height: auto;">
+            <img class="img-fluid img-responsive rounded product-image" src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}" style="width: 100%; height: 200px; object-fit: cover;">
         </div>
     </div>
 {% endif %}
@@ -260,12 +325,10 @@
             <h4 class="mr-1">${{ products[index][4] }}</h4>
         </div>
         <div class="d-flex flex-column mt-4">
-         <button class="btn btn-primary btn-sm viewListingButton" type="button" data-product-id="{{ products[index][0] }}">View Listing</button>
-<button class="btn btn-outline-primary btn-sm mt-2 editListingButton" type="button" data-product-id="{{ products[index][0] }}">Edit Listing</button>
-
-
-            <button class="btn btn-outline-primary btn-sm mt-2" type="button">Mark As Sold</button>
-<button class="btn btn-outline-danger btn-sm mt-2" type="button">Remove Listing</button>
+		<button class="btn btn-primary btn-sm mt-2 viewListingButton" type="button" data-product-id="{{ products[index][0] }}">View Listing</button>
+<button class="btn btn-primary btn-sm mt-2 buyNow" type="button" data-product-id="{{ products[index][0] }}">Buy Now</button>
+<button class="btn btn-outline-primary btn-sm mt-2 addToCart" type="button" data-product-id="{{ products[index][0] }}">Add To Cart</button>
+<button class="btn btn-outline-danger btn-sm mt-2 remove" type="button" data-product-id="{{ products[index][0] }}">Remove</button>
 
         </div>
     </div>
@@ -349,8 +412,6 @@
         });
     });
 </script>
-
-
 
 </html>
 
@@ -712,6 +773,43 @@
         form.submit();
     });
 </script>
+<script>
+    // Get all buttons with the class 'remove' that have a data-product-id attribute
+    const removeButtons = document.querySelectorAll('.remove[data-product-id]');
+
+    // Loop through each button
+    removeButtons.forEach(function(button) {
+        // Add a click event listener to each button
+        button.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default behavior (e.g., submitting a form)
+
+            // Get the product ID from the data-product-id attribute of the clicked button
+            const productId = this.getAttribute('data-product-id');
+
+            // Create a form element
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/removeFromWishList'; // Adjust the URL as needed
+
+            // Create a hidden input field for the product ID
+            const productIdField = document.createElement('input');
+            productIdField.type = 'hidden';
+            productIdField.name = 'productId';
+            productIdField.value = productId;
+
+            // Append the input field to the form
+            form.appendChild(productIdField);
+
+            // Append the form to the document body
+            document.body.appendChild(form);
+
+            // Submit the form
+            form.submit();
+        });
+    });
+</script>
+
+
 </body>
 </html>
 
