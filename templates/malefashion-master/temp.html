@@ -1,29 +1,38 @@
-    {% for index in range(products|length) %}
-<div class="col-lg-4 col-md-6 col-12">
-								<div class="single-product">
-									<div class="product-img">
-										<a href="product-details.html">
-											<img class="default-img" src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}" alt="{{ products[index][1] }}">
-											<img class="hover-img" src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}" alt="{{ products[index][1] }}">
-										</a>
-										<div class="button-head">
-											<div class="product-action">
-												<a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
-												<a title="Wishlist" href="#"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>
-												<a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
-											</div>
-											<div class="product-action-2">
-												<a title="Add to cart" href="#">Add to cart</a>
-											</div>
-										</div>
-									</div>
-									<div class="product-content">
-										<h3><a href="product-details.html">{{ products[index][1] }}</a></h3>
-										<div class="product-price">
-											<span>{{ products[index][4] }}</span>
-										</div>
-									</div>
-								</div>
-							</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Web Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js" integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <div id="messages"></div>
+    <input type="text" id="username" placeholder="Username">
+    <input type="text" id="message" placeholder="Message">
+    <button id="sendBtn">Send</button>
 
-    {% endfor %}                
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var socket = io.connect('http://192.168.137.1:5000'); // Corrected URL
+            socket.on('connect', function(data) { 
+                socket.send('User Connected');
+            });
+
+            socket.on('message', function(data) {
+                $('#messages').append($('<p>').text(data));
+            });
+
+            $('#sendBtn').click(function(){
+                var username = $('#username').val();
+                var message = $('#message').val();
+                if(username && message) {
+                    socket.send(username + ': ' + message);
+                    $('#message').val('');
+                } else {
+                    alert('Please enter both username and message.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ import sqlite3
 import os
 import databasee
 from werkzeug.utils import secure_filename
-
+from datetime import datetime
 # Inside your code
 
 
@@ -21,8 +21,54 @@ def temp2():
 
 @app.route("/")
 def home():
-    image_url = url_for('static', filename='images/bmw.jpg')
-    return render_template("malefashion-master/home.html",image_url=image_url)
+    if request.method=="GET":
+        print("I am in GET of homw") 
+        image_url = url_for('static', filename='images/bmw.jpg')   
+        electronics=databasee.execute_query("select * from product where category='Electronics'",()) 
+        fashion=databasee.execute_query("select * from product where category='Fashion'",())
+        sports=databasee.execute_query("select * from product where category='Sporting Goods'",())
+        motors=databasee.execute_query("select * from product where category='Motors'",())
+        home_and_garden=databasee.execute_query("select * from product where category='Home & Garden'",())  
+        books=databasee.execute_query("select * from product where category='Books'",())
+        latest_products=databasee.execute_query("select * from product   ORDER BY productId DESC LIMIT 50")
+        electronics_imagePaths=[]
+        fashion_imagePaths=[]
+        sports_imagePaths=[]
+        motors_imagePaths=[]
+        home_and_garden_imagePaths=[]
+        books_imagePaths=[]
+        latest_products_image_paths=[]
+
+        for product in latest_products:
+            latest_products_image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],)))
+
+        for product in electronics:
+            electronics_imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],)))
+        for product in fashion:
+            fashion_imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],))
+        )
+        for product in sports:
+            sports_imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],))
+        )   
+        for product in motors:
+            motors_imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],))
+        )
+        for product in home_and_garden:
+            home_and_garden_imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],))
+        )
+        for product in books:
+            books_imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],))
+        )   
+        print(latest_products,latest_products_image_paths)
+        return render_template("malefashion-master/home.html",image_url=image_url,
+                           electronics=electronics,fashion=fashion,sports=sports,
+                           motors=motors,home_and_garden=home_and_garden,books=books,
+                           electronics_imagePaths=electronics_imagePaths,
+                           fashion_imagePaths=fashion_imagePaths,
+                           sports_imagePaths=sports_imagePaths
+                           ,motors_imagePaths=motors_imagePaths,
+                           home_and_garden_imagePaths=home_and_garden_imagePaths
+                           ,books_imagePaths=books_imagePaths,latest_products=latest_products,latest_products_image_paths=latest_products_image_paths)
 
 
 
@@ -34,6 +80,16 @@ def userProfile():
 
         return render_template("malefashion-master/userProfile.html")
     return render_template("malefashion-master/userProfile.html")
+
+@app.route("/search",methods=["GET","POST"])
+def search():
+    if request.method=="POST":
+         search_query = request.form['search']
+         session["search"]=search_query
+         print("i am here in the ",search_query)
+
+         return redirect(url_for("shop_list"))
+
 
 
 
@@ -103,6 +159,7 @@ def sell():
     
     return redirect(url_for("home"))
 
+
 @app.route("/myListings",methods=["GET","POST"])
 def myListings():
     if request.method=="GET":
@@ -115,6 +172,9 @@ def myListings():
         for index in range(len(imagePaths)):
             print(imagePaths[index])
         return render_template("malefashion-master/myListings.html",products=products,imagePaths=imagePaths)   
+    if request.method=="POST":
+        userEmail=request.form.get("userEmail")
+        
 
 @app.route("/removeFromWishList",methods=["GET","POST"])
 def removeFromWishList():
@@ -196,6 +256,7 @@ def updatePersonalInfo():
 def login():
     if request.method == 'POST':
         session['referrer'] = request.referrer
+        session["category"]=""
         userEmail = request.form['userEmail']
         userPassword = request.form['userPassword']
         print(userEmail,userPassword)
@@ -374,7 +435,7 @@ def product():
         imagePaths = []
         for row in products_with_images:
             # product_info = row[:6]  # Assuming first 6 columns contain product information
-            image_path = row[7]     # Assuming the 7th column contains the image path
+            image_path = row[8]     # Assuming the 7th column contains the image path
             # products.append(product_info)
             imagePaths.append(image_path)
         products=databasee.execute_query("select * from product where productId=?",(product_id,))   
@@ -389,18 +450,76 @@ def product():
 
 @app.route("/shop-list", methods=["GET", "POST"] )
 def shop_list():
-    if request.method=="GET":
-        if  databasee.is_user_logged_in(session)==False:
+    if request.method == "GET":
+        if not databasee.is_user_logged_in(session):
             return redirect(url_for('login'))
-        products=databasee.execute_query("select * from product ",())
-        imagePaths=[]
-        print(products)
+        
+        if "search" in session:
+            search_query = session["search"]
+            products = databasee.execute_query("SELECT * FROM product WHERE productName LIKE ? OR productDescription LIKE ?", ('%'+search_query+'%', '%'+search_query+'%'))
+            session.pop("search")
+        elif "category" in session:
+            category = session["category"]
+            products = databasee.execute_query("SELECT * FROM product WHERE category=?", (category,))
+            session.pop("category")
+        else:
+            products = databasee.execute_query("SELECT * FROM product")
+            
+        imagePaths = []
         for product in products:
-            print(product[0])
-            imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages where  productId=?  and imagePath is not null LIMIT 1 ", (product[0],)))
-        for index in range(len(imagePaths)):
-            print(imagePaths[index])
-        return render_template("malefashion-master/shop-grid.html",products=products,imagePaths=imagePaths)   
+            imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? AND imagePath IS NOT NULL LIMIT 1", (product[0],)))
+            
+        return render_template("malefashion-master/shop-grid.html", products=products, imagePaths=imagePaths)
+
+@app.route('/electronics', methods=['GET', 'POST'])
+def electronics():
+    if request.method == "GET":
+        session["category"] = "Electronics"
+        return redirect(url_for("shop_list"))
+
+@app.route('/fashion', methods=['GET', 'POST'])
+def fashion():
+    if request.method == "GET":
+        session["category"] = "Fashion"
+        return redirect(url_for("shop_list"))
+
+@app.route('/home_and_garden', methods=['GET', 'POST'])
+def home_and_garden():
+    if request.method == "GET":
+        session["category"] = "Home & Garden"
+        return redirect(url_for("shop_list"))
+
+@app.route('/art', methods=['GET', 'POST'])
+def collectibles_art():
+    if request.method == "GET":
+        session["category"] = "Collectibles & Art"
+        return redirect(url_for("shop_list"))
+
+@app.route('/motors', methods=['GET', 'POST'])
+def motors():
+    if request.method == "GET":
+        session["category"] = "Motors"
+        return redirect(url_for("shop_list"))
+
+@app.route('/toys', methods=['GET', 'POST'])
+def toys_hobbies():
+    if request.method == "GET":
+        session["category"] = "Toys & Hobbies"
+        return redirect(url_for("shop_list"))
+
+@app.route('/sports', methods=['GET', 'POST'])
+def sporting_goods():
+    if request.method == "GET":
+        session["category"] = "Sporting Goods"
+        return redirect(url_for("shop_list"))
+
+@app.route('/health', methods=['GET', 'POST'])
+def health_beauty():
+    if request.method == "GET":
+        session["category"] = "Health & Beauty"
+        return redirect(url_for("shop_list"))
+
+
 
 @app.route('/wishlist', methods=['GET', 'POST'])
 def wishlist():
@@ -424,6 +543,25 @@ def wishlist():
     # Handle GET request to view wishlist
     # You can render a wishlist template here
     return 'View Wishlist'  # Example response for viewing wishlist
+
+@app.route('/viewWishList', methods=['GET', 'POST'])
+def viewWishList():
+    if request.method == 'GET':
+        if  databasee.is_user_logged_in(session) ==False:
+            return redirect(url_for('login'))
+        print("i am in wishlist get")
+        products = databasee.execute_query("SELECT product.productId, product.productName, product.productCondition, product.productDescription, product.productPrice, product.category FROM wishlist JOIN product ON wishlist.productId = product.productId WHERE wishlist.userEmail = ?", (session["userEmail"],))
+        print(products)
+        if products:
+            imagePaths = []
+            for product in products:
+                imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (product[0],)))
+            print(products,imagePaths)
+            return render_template('malefashion-master/viewWishList.html', products=products, imagePaths=imagePaths)
+        else:
+            return redirect(url_for("home"))   
+
+
 
 @app.route("/editListing", methods=["GET", "POST"])
 def editListing():
@@ -468,10 +606,15 @@ def updateListing():
 def cart():
 
     if request.method == "POST":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login')   )
         # Process the product ID and add it to the cart
         # You can perform any
         product_id = request.form.get('productId')
         print(product_id)
+        if databasee.execute_query("SELECT * FROM cart WHERE productId = ? AND userEmail = ?", (product_id, session["userEmail"])):
+            flash("Product already exists in your cart.")
+            redirect(url_for('home'))
         databasee.execute_query("INSERT INTO cart (userEmail, productId) VALUES (?, ?)", (session["userEmail"], product_id))
         databasee.execute_query("DELETE FROM wishlist WHERE productId = ? AND userEmail = ?", (product_id, session["userEmail"]))
         return redirect(url_for('home'))
@@ -512,21 +655,172 @@ def removeFromCart():
 
 
 
-@app.route("/viewWishList", methods=["GET", "POST"] )
-def viewWishList():
-    if request.method=="GET":
-        if  databasee.is_user_logged_in(session)==False:
+
+@app.route("/sellerProfile", methods=["GET", "POST"])
+def sellerProfile():
+    
+    if request.method == "POST":
+        if databasee.is_user_logged_in(session)==False:
             return redirect(url_for('login'))
         
-        products=databasee.execute_query("select product.productId,product.productName,product.productCondition,product.productDescription,product.productPrice,product.category from wishlist  join product on product.productId=wishlist.productId where product.userEmail= ?",(session["userEmail"],))
-        print(products)
-        imagePaths=[]
-        for product in products:
-            imagePaths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId=? ORDER BY productId ASC LIMIT 1", (product[0],)))
-        for index in range(len(imagePaths)):
-            print(imagePaths[index])
-        return render_template("malefashion-master/viewWishList.html",products=products,imagePaths=imagePaths)  
+        print("this is seller",request.form.get('productId'))
+        product_id = request.form.get('productId')
+        sellerEmail=databasee.execute_query("select userEmail from product where productId=? limit 1", (product_id,))
+        sellerEmail=sellerEmail[0][0]
+        print(sellerEmail)
+        user = databasee.execute_query("""
+    SELECT users.userEmail, users.username, users.userContact,
+           addresses.userCountry, addresses.userCity, addresses.userStreet, addresses.userZipCode
+    FROM users
+    JOIN addresses ON users.userEmail = addresses.userEmail
+    WHERE users.userEmail = ?
+""",  (sellerEmail,))
+        print(user)
 
+        reviews=databasee.execute_query("select * from reviews where userEmail=?",(sellerEmail,))
+        print(reviews)
+        return render_template('malefashion-master/sellerProfile.html',user=user,reviews=reviews)
+
+    elif request.method == "GET":
+         print("i am in get request of the review button")
+         sellerEmail = request.args.get('sellerEmail')
+         user = databasee.execute_query("""
+    SELECT users.userEmail, users.username, users.userContact,
+           addresses.userCountry, addresses.userCity, addresses.userStreet, addresses.userZipCode
+    FROM users
+    JOIN addresses ON users.userEmail = addresses.userEmail
+    WHERE users.userEmail = ?
+""",  (sellerEmail,))
+    print(user)
+
+    reviews=databasee.execute_query("select * from reviews where userEmail=?",(sellerEmail,))
+    print(reviews)
+    return render_template('malefashion-master/sellerProfile.html',user=user,reviews=reviews)
+        
+
+
+@app.route("/submitReview", methods=["GET", "POST"])
+def submitReview():
+    if request.method == "POST":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        senderEmail = session["userEmail"]
+        review = request.form.get('reviewText')
+        
+        sellerEmail = request.form.get('userEmail')
+        databasee.execute_query("INSERT INTO reviews (text, userEmail, senderEmail) VALUES (?, ?,  ?)", (review,sellerEmail,senderEmail ))
+        return redirect(url_for('sellerProfile', sellerEmail=sellerEmail))
+
+
+@app.route("/checkout", methods=["GET", "POST"])
+def checkout():
+
+    if request.method=="GET":
+        if databasee.is_user_logged_in(session)==False:
+            return render_template('malefashion-master/checkout.html')
+        else:
+            return render_template('malefashion-master/checkout.html')
+    if request.method == "POST":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        product_id=databasee.execute_query("select productId from cart where userEmail=?",(session["userEmail"],))
+        products=[]
+        print(product_id)
+        products = []
+
+        for product_tuple in product_id:
+            product_id = product_tuple[0]  # Extracting the product ID from the tuple
+            product = databasee.execute_query("SELECT * FROM product WHERE productId=?", (product_id,))
+            products.append(product)
+            total=databasee.execute_query("select sum(productPrice) from product where productId in (select productId from cart where userEmail=?)",(session["userEmail"],))
+        user = databasee.execute_query(
+    """
+    SELECT u.username, u.userEmail, a.userContact, a.userCountry, a.userCity, a.userStreet, a.userZipCode 
+    FROM users AS u 
+    JOIN addresses AS a ON u.userEmail = a.userEmail
+    WHERE u.userEmail = ? 
+    ORDER BY a.userAddressId ASC 
+    LIMIT 1;
+    """,
+    (session["userEmail"],)
+    )
+        print("I am just before render")
+        print(user)
+        print(product_id)
+        if user:
+
+            print(user)
+            return render_template("malefashion-master/checkout.html",products=products,total=total,user=user)
+        else:
+            print("I am in else")
+            user = [None]*10
+            return render_template("malefashion-master/checkout.html",products=products,total=total,user=user)
+
+
+        
+
+    return redirect(url_for("home"))
+
+
+@app.route("/placeorder", methods=["GET", "POST"])
+def placeorder():
+    if request.method=="GET":
+        return redirect(url_for("home"))
+    if request.method=="POST":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        products_id=databasee.execute_query("select productId from cart where userEmail=?",(session["userEmail"],))
+        databasee.execute_query("delete from cart where userEmail=?",(session["userEmail"],))
+        country = request.form.get('country')
+        street = request.form.get('street')
+        suite = request.form.get('suite')
+        city = request.form.get('city')
+        state = request.form.get('state')
+        zipCode = request.form.get('zipCode')
+        phone = request.form.get('phone')
+
+        # Printing the form data (for debugging)
+        print(country, street, suite, city, state, zipCode, phone)
+        address=country+street+suite+city+state+zipCode+phone
+        address = str(street or "") + "," + str(suite or "") + "," + str(city or "") + "," + str(state or "") + "," + str(zipCode or "") + "," + str(country or "") + "," + str(phone or "")
+        databasee.execute_query("insert into orders (orderDate,address ,status) values(?,?,?)",(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),address,"Pending"))
+        latest_order_id=databasee.execute_query("select max(orderId) from orders",())
+        for product_id in products_id:
+            seller_email = databasee.execute_query("select userEmail from product where productId=?", (product_id[0],))
+            seller_email_str = seller_email[0][0] if seller_email else None
+            print(seller_email_str)
+            databasee.execute_query("insert into orderHasProducts (orderId,productId,sellerId,buyerId) values(?,?,?,?)", (latest_order_id[0][0], product_id[0], seller_email_str, session["userEmail"]))
+            databasee.execute_query("update product set sold='True' where productId=?",(product_id[0],))
+            return redirect(url_for("home"))
+        
+        return redirect(url_for("home"))
+
+@app.route("/orders", methods=["GET", "POST"])
+def orders():
+    if request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        print("I am in GET of orders")
+        return render_template("malefashion-master/orders.html")
+
+@app.route("/viewMyOrders", methods=["GET", "POST"])
+def viewMyOrders():
+    if request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        return render_template("malefashion-master/viewMyOrders.html")
+    if request.method=="POST":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        
+        return render_template("malefashion-master/viewMyOrders.html",orders=orders)
+
+@app.route("/viewOrdersToDeliver", methods=["GET", "POST"])
+def viewOrdersToDeliver():
+    if request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        return render_template("malefashion-master/viewOrdersToDeliver.html")   
 
 if __name__ == '__main__':
     app.run()

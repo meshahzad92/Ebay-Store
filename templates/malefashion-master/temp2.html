@@ -1,95 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
+{% for index in range(latest_products|length) %}
+											
+												<div class="single-product">
+													<div class="product-img">
+														<a href="product-details.html">
+   														{% set imagePath = latest_products_image_paths[index][0][0][7:] %}
+														<img class="default-img" src="{{ url_for('static', filename=imagePath) }}" alt="{{ latest_products_image_paths[index][1] }}"  data-product-id="{{ latest_products_image_paths[index][0] }}">
+														<img class="hover-img" src="{{ url_for('static', filename=latest_products_image_paths[index][0][0][7:]) }}" alt="{{ latest_products_image_paths[index][1] }}"   data-product-id="{{ latest_products_image_paths[index][0] }}">
+														</a>
+														<div class="button-head">
+															<div class="product-action">
+																<a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
+																												<a title="Wishlist" href="#">
+												<i class="ti-heart addToWishlistIcon" data-product-id="{{ latest_products_image_paths[index][0] }}"></i>
+												<span>Add to Wishlist</span></a>
+																<a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
+															</div>
+															<div class="product-action-2">
+																<a title="Add to cart" href="#" class="addToCartLink" data-product-id="{{ latest_products[index][0] }}">Add to cart</a>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Untitled</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/Login-with-overlay-image.css') }}">
-
-</head>
-
-<body><div id="main-wrapper" class="container">
-    <div class="row justify-content-center">
-        <div class="col-xl-10">
-            <div class="card border-0">
-                <div class="card-body p-0">
-                    <div class="row no-gutters">
-                        <div class="col-lg-6">
-                            <div class="p-5">
-                                <div class="mb-5">
-                                    <h4 class="h4 font-weight-bold text-theme">Login</h4>
-                                </div>
-
-                                <h6 class="h5 mb-0">Welcome back!</h6>
-                                <p class="text-muted mt-2 mb-5">Enter your email address and password to access admin panel.</p>
-
-                                <form method="POST" action="/signUp">
-                                    <div class="form-group" >
-                                        <label for="exampleInputEmail1">User First Name</label>
-                                       <input type="text" class="form-control" placeholder="User First Name" name="userFirstName">
-        
-                                    </div>
-                                        <div class="form-group" >
-                                        <label for="exampleInputEmail1">User Last Name</label>
-                                       <input type="text" class="form-control" placeholder="User First Name" name="userLastName">
-        
-                                    </div>
-                                    <div class="form-group" >
-                                        <label for="exampleInputEmail1">Email address</label>
-                                       <input type="email" class="form-control" placeholder="Email" name="userEmail">
-                                    </div>
-                                    
-                                    <div class="form-group mb-5">
-                                        <label for="exampleInputPassword1">Confirm Password</label>
-                                        <input type="password" class="form-control" placeholder="Password" name="userPassword">
-                                          </div>
-                                    <div class="form-group mb-5">
-                                        <label for="exampleInputPassword1">Password</label>
-                                        <input type="password" class="form-control" placeholder="Password" name="confirmPassword">
-                                          </div>
-                                    <div class="form-group" >
-                                        <label for="exampleInputEmail1">User Contact</label>
-                                       <input type="text" class="form-control" placeholder="contact" name="userContact">
-                                    </div>
-                                    
-                                   <button type="submit" class="btn btn-theme" style="width: 200px;">Login</button>
-
-                                   
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6 d-none d-lg-inline-block">
-                            <div class="account-block rounded-right">
-                              
-                                <div class="overlay rounded-right"></div>
-                                <div class="account-testimonial">
-                                    <h4 class="text-white mb-4">Trade Forge</h4>
-                                    <p class="lead text-white">"Best investment i made for a long time. Can only recommend it for other users."</p>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- end card-body -->
-            </div>
-            <!-- end card -->
-
-            <p class="text-muted text-center mt-3 mb-0">Don't have an account? <a href="/signUp" class="text-primary ml-1">Sign UP</a></p>
-
-            <!-- end row -->
-
-        </div>
-        <!-- end col -->
-    </div>
-    <!-- Row -->
-</div>
- <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-
-</body>
-
-</html>
+															</div>
+														</div>
+													</div>
+													<div class="product-content">
+														<h3><a href="product-details.html">{{ latest_products[index][1] }}</a></h3>
+														<div class="product-price">
+															<span>${{  latest_products[index][4] }}</span>
+														</div>
+													</div>
+												</div>
+											
+											{% endfor %}  
+                   

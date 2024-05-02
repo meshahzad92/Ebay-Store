@@ -80,8 +80,10 @@
                     <b class="pl-md-4">SUBTOTAL<span class="pl-md-4">$61.78</span></b>
                 </div>
                 <div>
-                    <button class="btn btn-sm bg-dark text-white px-lg-5 px-3">CONTINUE</button>
-                </div>
+<!-- Button HTML -->
+<button class="btn btn-sm bg-dark text-white px-lg-5 px-3 btn-continue" data-product-id="{{ products[0] }}">CONTINUE</button>
+
+         </div>
             </div>
         </div>
     </div>
@@ -156,6 +158,45 @@
             // Submit the form
             form.submit();
         });
+    });
+</script>
+
+
+
+
+
+
+<!-- JavaScript -->
+<script>
+    // Get the button element
+    const continueButton = document.querySelector('.btn-continue');
+
+    // Add a click event listener to the button
+    continueButton.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default behavior (submitting the form)
+
+        // Get the product ID from the data-product-id attribute
+        const productId = continueButton.getAttribute('data-product-id');
+
+        // Create a form element
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/checkout'; // Adjust the URL as needed
+
+        // Create a hidden input field for the product ID
+        const productIdField = document.createElement('input');
+        productIdField.type = 'hidden';
+        productIdField.name = 'productId';
+        productIdField.value = productId; // Set the value to the product ID
+
+        // Append the hidden input field to the form
+        form.appendChild(productIdField);
+
+        // Append the form to the document body
+        document.body.appendChild(form);
+
+        // Submit the form
+        form.submit();
     });
 </script>
 

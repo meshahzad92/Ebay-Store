@@ -8,7 +8,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<!-- Title Tag  -->
-    <title>Eshop - eCommerce HTML5 Template.</title>
+    <title>Trade Forge</title>
 	<!-- Favicon -->
 	<link rel="icon" type="image/png" href="images/favicon.png">
 	<!-- Web Font -->
@@ -17,7 +17,7 @@
 	<!-- StyleSheet -->
 	
 	<!-- Bootstrap -->
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/magnific-popup.min.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fancybox.min.css') }}">
@@ -87,12 +87,12 @@
 						<div class="search-top">
 							<div class="top-search"><a href="#0"><i class="ti-search"></i></a></div>
 							<!-- Search Form -->
-							<div class="search-top">
-								<form class="search-form">
-									<input type="text" placeholder="Search here..." name="search">
-									<button value="search" type="submit"><i class="ti-search"></i></button>
-								</form>
-							</div>
+<div class="search-top">
+    <form class="search-form" method="POST" action="/search">
+        <input type="text" placeholder="Search here..." name="search">
+        <button type="submit"><i class="ti-search"></i></button>
+    </form>
+</div>
 							<!--/ End Search Form -->
 						</div>
 						<!--/ End Search Form -->
@@ -107,54 +107,22 @@
 									<option>mobile</option>
 									<option>kid’s item</option>
 								</select>
-								<form>
+								<form method="POST" action="/search">
 									<input name="search" placeholder="Search Products Here....." type="search">
-									<button class="btnn"><i class="ti-search"></i></button>
+									<button class="btnn" ><i class="ti-search"></i></button>
 								</form>
+							
+
+
 							</div>
 						</div>
 					</div>
 					<div class="col-lg-2 col-md-3 col-12">
 						<div class="right-bar">
 							<!-- Search Form -->
-							<div class="sinlge-bar">
-								<a href="#" class="single-icon"><i class="fa fa-heart-o" aria-hidden="true"></i></a>
-							</div>
-							<div class="sinlge-bar">
-								<a href="#" class="single-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
-							</div>
-							<div class="sinlge-bar shopping">
-								<a href="#" class="single-icon"><i class="ti-bag"></i> <span class="total-count">2</span></a>
-								<!-- Shopping Item -->
-								<div class="shopping-item">
-									<div class="dropdown-cart-header">
-										<span>2 Items</span>
-										<a href="#">View Cart</a>
-									</div>
-									<ul class="shopping-list">
-										<li>
-											<a href="#" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
-											<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70" alt="#"></a>
-											<h4><a href="#">Woman Ring</a></h4>
-											<p class="quantity">1x - <span class="amount">$99.00</span></p>
-										</li>
-										<li>
-											<a href="#" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
-											<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70" alt="#"></a>
-											<h4><a href="#">Woman Necklace</a></h4>
-											<p class="quantity">1x - <span class="amount">$35.00</span></p>
-										</li>
-									</ul>
-									<div class="bottom">
-										<div class="total">
-											<span>Total</span>
-											<span class="total-amount">$134.00</span>
-										</div>
-										<a href="checkout.html" class="btn animate">Checkout</a>
-									</div>
-								</div>
-								<!--/ End Shopping Item -->
-							</div>
+						
+							
+
 						</div>
 					</div>
 				</div>
@@ -245,20 +213,12 @@
 													<li><a href="/sell">Sell</a></li>
 																								
 													<li><a href="/myListings">My Listings</a></li>
-													<li><a href="#">Shop<i class="ti-angle-down"></i><span class="new">New</span></a>
-														<ul class="dropdown">
-															<li><a href="shop-grid.html">Shop Grid</a></li>
-															<li><a href="cart.html">Cart</a></li>
-															<li><a href="checkout.html">Checkout</a></li>
-														</ul>
-													</li>
+
 													<li><a href="/shop-list">Catalogue</a></li>									
 													<li><a href="/viewWishList">WishList<i class="ti-angle-down"></i></a>
-														<ul class="dropdown">
-															<li><a href="blog-single-sidebar.html">Blog Single Sidebar</a></li>
-														</ul>
 													</li>
-													<li><a href="contact.html">Contact Us</a></li>
+													<li><a href="/viewWishList">Wish List</a></li>
+													<li><a href="/orders">Orders</a></li>
 												</ul>
 										</div>
 									</div>
@@ -585,6 +545,109 @@
 <script src="{{ url_for('static', filename='js/easing.js') }}"></script>
 <!-- Active JS -->
 <script src="{{ url_for('static', filename='js/active.js') }}"></script>
+
+    <script>
+        document.querySelectorAll('.hover-img').forEach(img => {
+            img.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior (navigating to the link)
+                
+                const productId = this.getAttribute('data-product-id');
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/product'; // Adjust the URL as needed
+                form.style.display = 'none'; // Hide the form
+                
+                const productIdField = document.createElement('input');
+                productIdField.type = 'hidden';
+                productIdField.name = 'productId';
+                productIdField.value = productId;
+                
+                form.appendChild(productIdField);
+                document.body.appendChild(form);
+                
+                form.submit(); // Submit the form
+            });
+        });
+    </script>
+
+
+<script>
+    // Get all elements with the class 'addToWishlistIcon'
+    var addToWishlistIcons = document.querySelectorAll('.addToWishlistIcon');
+
+    // Attach a click event listener to each icon
+    addToWishlistIcons.forEach(function(icon) {
+        icon.addEventListener('click', function() {
+            // Get the product ID from the 'data-product-id' attribute
+            var productId = this.getAttribute('data-product-id');
+
+            // Create a new FormData object to store the product ID
+            var formData = new FormData();
+            formData.append('productId', productId);
+
+            // Use the fetch API to send a POST request
+            fetch('/wishlist', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Wishlist item added successfully
+                    console.log('Wishlist item added successfully.');
+                } else {
+                    // Handle error
+                    console.error('Failed to add item to wishlist.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+
+
+<script>
+    // Function to submit the form with product ID to /cart
+    function addToCart(productId) {
+        // Create a new form element
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/cart'; // Specify the action URL
+
+        // Create a hidden input field to store the product ID
+        var productIdInput = document.createElement('input');
+        productIdInput.type = 'hidden';
+        productIdInput.name = 'productId';
+        productIdInput.value = productId;
+
+        // Append the input field to the form
+        form.appendChild(productIdInput);
+
+        // Append the form to the document body
+        document.body.appendChild(form);
+
+        // Submit the form
+        form.submit();
+    }
+
+    // Get all elements with the class 'addToCartLink'
+    var addToCartLinks = document.querySelectorAll('.addToCartLink');
+
+    // Attach a click event listener to each link
+    addToCartLinks.forEach(function(link) {
+        link.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default behavior of navigating to the link
+
+            // Get the product ID from the 'data-product-id' attribute
+            var productId = this.getAttribute('data-product-id');
+            
+            // Call the addToCart function with the product ID
+            addToCart(productId);
+        });
+    });
+</script>
 
 </body>
 </html>
