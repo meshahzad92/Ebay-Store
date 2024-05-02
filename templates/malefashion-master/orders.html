@@ -17,7 +17,7 @@
     }
 
     .col-md-6 {
-      height: 100%;
+      height: 30%;
     }
 
     .cube-loader-container {
@@ -155,6 +155,11 @@
   </style>
 </head>
 <body>
+  <div class="text-center mt-2"> <!-- Add margin-top to move button to the next line -->
+    <a href="/" class="btn btn-primary">
+        <span>Return to Home</span>
+    </a>
+</div>
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-6">
@@ -172,13 +177,73 @@
             <hr> <!-- Add margin-top to move button to the next line -->
             <form action="/viewMyOrders" method="post">
                 <button type="submit">
-                <span>View My Orders</span>
+                <span>My Pending Orders</span>
             </button>
             </form>
       
         </div>
+                <div class="cube-loader-container">
+          <div class="cube-loader">
+            <div class="cube-top"></div>
+            <div class="cube-wrapper">
+              <span style="--i:0" class="cube-span"></span>
+              <span style="--i:1" class="cube-span"></span>
+              <span style="--i:2" class="cube-span"></span>
+              <span style="--i:3" class="cube-span"></span>
+            </div>
+          </div>
+      
+            <hr> <!-- Add margin-top to move button to the next line -->
+            <form action="/viewMyOrders" method="post">
+                <button type="submit">
+                <span> My Orders Recieved</span>
+            </button>
+            </form>
+      
+        </div>
+
+                <div class="cube-loader-container">
+          <div class="cube-loader">
+            <div class="cube-top"></div>
+            <div class="cube-wrapper">
+              <span style="--i:0" class="cube-span"></span>
+              <span style="--i:1" class="cube-span"></span>
+              <span style="--i:2" class="cube-span"></span>
+              <span style="--i:3" class="cube-span"></span>
+            </div>
+          </div>
+      
+            <hr> <!-- Add margin-top to move button to the next line -->
+            <form action="/viewMyOrders" method="post">
+                <button type="submit">
+                <span> My Orders Cancalled</span>
+            </button>
+            </form>
+      
+        </div>
+
       </div>
       <div class="col-md-6">
+
+                <div class="cube-loader-container">
+          <div class="cube-loader">
+            <div class="cube-top"></div>
+            <div class="cube-wrapper">
+              <span style="--i:0" class="cube-span"></span>
+              <span style="--i:1" class="cube-span"></span>
+              <span style="--i:2" class="cube-span"></span>
+              <span style="--i:3" class="cube-span"></span>
+            </div>
+          </div>
+         
+            <hr> <!-- Add margin-top to move button to the next line -->
+            <form action="/viewOrdersToDeliver" method="POST">
+                <button type="submit">
+                <span>Deliver To Buyer</span>
+              </button>
+            </form>
+         
+        </div>
         <div class="cube-loader-container">
           <div class="cube-loader">
             <div class="cube-top"></div>
@@ -191,19 +256,41 @@
           </div>
          
             <hr> <!-- Add margin-top to move button to the next line -->
-            <form action="/viewOrdersToDeliver" method="post">
+            <form action="/viewDeliveredToBuyer" method="POST">
                 <button type="submit">
-                <span>View Orders To Deliver</span>
-            </button>
+                <span>Delivered To Buyer</span>
+              </button>
+            </form>
+         
+        </div>
+
+              <div class="cube-loader-container">
+          <div class="cube-loader">
+            <div class="cube-top"></div>
+            <div class="cube-wrapper">
+              <span style="--i:0" class="cube-span"></span>
+              <span style="--i:1" class="cube-span"></span>
+              <span style="--i:2" class="cube-span"></span>
+              <span style="--i:3" class="cube-span"></span>
+            </div>
+          </div>
+         
+            <hr> <!-- Add margin-top to move button to the next line -->
+            <form action="/viewCancelledToBuyer" method="POST">
+                <button type="submit">
+                <span>Cancelled To Buyer</span>
+              </button>
             </form>
          
         </div>
       </div>
     </div>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>

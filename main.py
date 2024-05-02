@@ -805,22 +805,207 @@ def orders():
 
 @app.route("/viewMyOrders", methods=["GET", "POST"])
 def viewMyOrders():
-    if request.method == "GET":
+    if request.method == "POST":
         if databasee.is_user_logged_in(session)==False:
             return redirect(url_for('login'))
-        return render_template("malefashion-master/viewMyOrders.html")
-    if request.method=="POST":
-        if databasee.is_user_logged_in(session)==False:
-            return redirect(url_for('login'))
-        
-        return render_template("malefashion-master/viewMyOrders.html",orders=orders)
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orders.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where buyerId=? and status="Pending"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/viewOrdersToDeliver.html",products=orders,imagePaths=image_paths)   
 
 @app.route("/viewOrdersToDeliver", methods=["GET", "POST"])
-def viewOrdersToDeliver():
-    if request.method == "GET":
+def viewOrdersToDeliver(): 
+    if request.method == "POST" or request.method == "GET":
         if databasee.is_user_logged_in(session)==False:
             return redirect(url_for('login'))
-        return render_template("malefashion-master/viewOrdersToDeliver.html")   
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orderHasProducts.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.status="Pending"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        if not orders:
+            return redirect(url_for("home"))
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/viewOrdersToDeliver.html",products=orders,imagePaths=image_paths)   
 
+@app.route("/viewOrdersDelivered", methods=["GET", "POST"])
+def viewOrdersDelivered():
+    if request.method == "POST" or request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orderHasProducts.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.status="Delivered"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/viewOrdersDelivered.html",products=orders,imagePaths=image_paths)
+@app.route("/myPendingOrders", methods=["GET", "POST"])
+def myPendingOrders():
+    if request.method == "POST" or request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orderHasProducts.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="Pending"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/myPendingOrders.html",products=orders,imagePaths=image_paths)
+@app.route("/myOrdersCancalled", methods=["GET", "POST"])
+def myOrdersCancalled():
+    if request.method == "POST" or request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orderHasProducts.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="Cancelled"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/myOrdersCancalled.html",products=orders,imagePaths=image_paths)
+
+@app.route("/myOrdersRecieved", methods=["GET", "POST"])
+def myOrdersRecieved():
+    if request.method == "POST" or request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orderHasProducts.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="Delivered"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/myOrdersRecieved.html",products=orders,imagePaths=image_paths)
+
+@app.route("/viewCancelledToBuyer", methods=["GET", "POST"])
+def viewCancelledToBuyer():
+    if request.method == "POST" or request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        orders = databasee.execute_query('''
+    select 
+        orders.orderId, orders.orderDate, orders.address, orderHasProducts.status,
+        orderHasProducts.productId, orderHasProducts.sellerId, orderHasProducts.buyerId,
+        product.productName, product.productCondition, product.productPrice,
+        product.category, product.sold
+    from orders 
+    join orderHasProducts on orders.orderId = orderHasProducts.orderId 
+    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.status="Cancelled"
+''', (session["userEmail"],))
+        image_paths = [
+        ]
+        print("from here order to deliver")
+        print(orders)
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/viewCancelledToBuyer.html",products=orders,imagePaths=image_paths)
+
+
+
+@app.route("/cancel", methods=["GET", "POST"])
+def cancel():
+    if request.method == "GET":
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        productId=request.form.get("productId")
+        databasee.execute_query("update orderHasProducts set status='Cancelled' where productId=?",(productId,))
+        return redirect(url_for("viewOrdersToDeliver"))    
+
+
+
+
+@app.route('/deliver', methods=['GET', 'POST'])
+def deliver():
+    if request.method == "GET":
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        productId=request.form.get("productId")
+        databasee.execute_query("update orderHasProducts set status='Delivered' where productId=?",(productId,))
+        return redirect(url_for("viewOrdersToDeliver"))
 if __name__ == '__main__':
     app.run()
