@@ -183,8 +183,8 @@
             <div class="card-inner">
               {% set imagePath = imagePaths[index][0][0][7:] %}
               <div class="card-front">
-                <img src="{{ url_for('static', filename=imagePath) }}" alt="{{ products[index][1] }}" data-product-id="{{ products[index][0] }}">
-              </div>
+             <img src="{{ url_for('static', filename=imagePath) }}" alt="{{ products[index][1] }}" data-product-id="{{ products[index][0] }}" style="width: 190px; height: 170px;">
+       </div>
               <div class="card-back">
                 <div class="card-back-content"  style="font-size: 10px;" >
                   <h3>{{ products[index][1] }}</h3>
@@ -200,14 +200,14 @@
           <div class="buttons">
             <form method="post" action="/cancel">
               <input type="text " name="productId" value="{{products[index][4]}}" hidden>
-              <button class="btn-12" type="submit" name="cancel" value="cancel"><span style="margin-right: 25px;">Cancel</span></button>
-            
+<button class="btn-12" type="submit" name="cancel" value="cancel" {{ buttonStatus }}><span style="margin-right: 25px;">Cancel</span></button>
+
             </form>
           </div>
           <div class="buttons">
             <form method="post" action="/deliver">
               <input type="text " name="productId" value="{{products[index][4]}}" hidden>
-              <button class="btn-12" type="submit" name="delivered" value="delivered"><span style="margin-right: 5px;">Delivered</span></button>
+              <button class="btn-12" type="submit" name="delivered" value="delivered"  {{ buttonStatus }}><span style="margin-right: 5px;">Delivered</span></button>
             </form>
           </div>
         </div>
