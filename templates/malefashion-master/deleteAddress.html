@@ -2,28 +2,62 @@
 <html>
 <head>
     <title>Addresses</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        p {
+            margin: 0;
+            font-size: 16px;
+        }
+        form {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Addresses</h1>
-<ul>
-    {% for address in addresses %}
-        <li>
-            <p>User Contact: {{ address[1] }}  </p>
-            <p>User Country: {{ address[2] }}   </p>
-            <p>User City: {{ address[3] }}       </p>
-            <p>User Street: {{ address[4] }}   </p>
-            <p>User Zip Code: {{ address[5] }}   </p>
-            
-            <!-- Form with a button for each address -->
-            <form method="POST" action="/deleteAddress">
-                <!-- Use a hidden input to pass the address ID -->
-                <input type="hidden" name="addressId" value="{{ address[0] }}">
-                <!-- Button to submit the form -->
-                <button type="submit">Submit</button>
-            </form>
-        </li>
-    {% endfor %}
-</ul>
-
+    <div class="container">
+        <h1>Addresses</h1>
+        <ul class="list-group">
+            {% for address in addresses %}
+                <li class="list-group-item">
+                    <p><strong>User Contact:</strong> {{ address[1] }}</p>
+                    <p><strong>User Country:</strong> {{ address[2] }}</p>
+                    <p><strong>User City:</strong> {{ address[3] }}</p>
+                    <p><strong>User Street:</strong> {{ address[4] }}</p>
+                    <p><strong>User Zip Code:</strong> {{ address[5] }}</p>
+                    
+                    <!-- Form with a button for each address -->
+                    <form method="POST" action="/deleteAddress">
+                        <!-- Use a hidden input to pass the address ID -->
+                        <input type="hidden" name="addressId" value="{{ address[0] }}">
+                        <!-- Button to submit the form -->
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>

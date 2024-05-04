@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic HTML Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,34 +48,34 @@
 <body>
 
 <div class="container">
-    <h2>Basic HTML Form</h2>
-   <form method="POST" action="/userAddressess">
+    <h2 class="text-center mb-4">Update address</h2>
+    <form method="POST" action="/userAddressess">
         <div class="form-group">
-        <label for="userContact">User Address Id:</label>
-        <input type="text" id="userAddressId" name="userAddressId" value="{{ userObject.userAddressId }}" required readonly>
-    </div>
-    <div class="form-group">
-        <label for="userContact">User Contact:</label>
-        <input type="text" id="userContact" name="userContact" value="{{ userObject.userContact }}" required>
-    </div>
-    <div class="form-group">
-        <label for="userCountry">Country:</label>
-        <input type="text" id="userCountry" name="userCountry" value="{{ userObject.userCountry }}" required>
-    </div>
-    <div class="form-group">
-        <label for="userCity">City:</label>
-        <input type="text" id="userCity" name="userCity"  value="{{ userObject.userCity }}" required>
-    </div>
-    <div class="form-group">
-        <label for="userStreet">Street:</label>
-        <input type="text" id="userStreet" name="userStreet" value="{{ userObject.userStreet }}" required>
-    </div>
-    <div class="form-group">
-        <label for="userZipCode">Zip Code:</label>
-        <input type="text" id="userZipCode" name="userZipCode" value="{{ userObject.userZipCode }}" required>
-    </div>
-    <input type="submit" value="Submit">
-</form>
+            <label for="userAddressId">User Address Id:</label>
+            <input type="text" class="form-control" id="userAddressId" name="userAddressId" value="{{ userObject.userAddressId }}" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="userContact">User Contact:</label>
+            <input type="text" class="form-control" id="userContact" name="userContact" value="{{ userObject.userContact }}" required>
+        </div>
+        <div class="form-group">
+            <label for="userCountry">Country:</label>
+            <input type="text" class="form-control" id="userCountry" name="userCountry" value="{{ userObject.userCountry }}" required>
+        </div>
+        <div class="form-group">
+            <label for="userCity">City:</label>
+            <input type="text" class="form-control" id="userCity" name="userCity"  value="{{ userObject.userCity }}" required>
+        </div>
+        <div class="form-group">
+            <label for="userStreet">Street:</label>
+            <input type="text" class="form-control" id="userStreet" name="userStreet" value="{{ userObject.userStreet }}" required>
+        </div>
+        <div class="form-group">
+            <label for="userZipCode">Zip Code:</label>
+            <input type="text" class="form-control" id="userZipCode" name="userZipCode" value="{{ userObject.userZipCode }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 </div>
 
 </body>

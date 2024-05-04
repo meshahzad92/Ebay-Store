@@ -435,7 +435,7 @@ def addressess():
             databasee.addressess.updateAddress( new_contact, new_country, new_city, new_street, new_zip_code,session["userEmail"],new_address_id)
             
     # # Check if there's a referrer URL stored in the session
-            return redirect(url_for("shop"))
+            return redirect(url_for("shop_list"))
       
     
 
