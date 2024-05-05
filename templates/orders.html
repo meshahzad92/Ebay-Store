@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ord.css') }}">
+    <title>Admin Orders Page</title>
+</head>
+<body>
+    <div class="sidebar">
+        <header>Admin Dashboard</header>
+        <ul>
+            <li><a href="admin_pg.html"><i class="i1"></i>Dashboard</a></li>
+            <li><a href="Customer.html"><i class="i2"></i>Customer</a></li>
+            <li><a href="Products.html"><i class="i3"></i>Products</a></li>
+            <li><a href="orders.html"><i class="i4"></i>Orders</a></li>
+            <li><a href="MyNotes.html"><i class="i5"></i>My Notes</a></li>
+            <li><a href="login_pg.html"><i class="i6"></i>Log Out</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h2>Order Details</h2>
+        <div class="notes">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order Id</th>
+                        <th>Order Date</th>
+                        <th>Shipping Cost</th>
+                        <th>Shipping Address ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>
+                            <form action="/edit_order" method="post" class="edit-form">
+                                <input type="hidden" name="order_id" value="{{ row[0] }}">
+                                <div class="edit-fields">
+                                    <input type="text" name="order_date" placeholder="New Date">
+                                    <input type="text" name="shipping_cost" placeholder="New Cost">
+                                    <input type="text" name="shipping_address_id" placeholder="New Address ID">
+                                </div>
+                                <button type="submit">Modify Details</button>
+                            </form>
+                            <form action="/edit_order" method="post">
+                                <input type="hidden" name="order_id" value="{{ row[0] }}">
+                                <button type="submit" formaction="/delete_order">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h2>Add Order</h2>
+            <form action="/add_order" method="post" class="addus">
+                <label for="order_id">Order ID:</label>
+                <input type="text" id="order_id" name="order_id"><br><br>
+                <label for="order_date">Order Date:</label>
+                <input type="text" id="order_date" name="order_date"><br><br>
+                <label for="shipping_cost">Shipping Cost:</label>
+                <input type="text" id="shipping_cost" name="shipping_cost"><br><br>
+                <label for="shipping_address_id">Shipping Address ID:</label>
+                <input type="text" id="shipping_address_id" name="shipping_address_id"><br><br>
+                <button type="submit">Add Order</button>
+            </form>
+            </div>
+    
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notes.css') }}">
+    <title>Admin Notes</title>
+</head>
+<body>
+    <body>
+        <div class="sidebar">
+            <header>Admin Dashboard</header>
+            <ul>
+                <li><a href="admin_pg.html"><i class="i1"></i>Dashboard</a></li>
+                <li><a href="Customer.html"><i class="i2"></i>Customer</a></li>
+                <li><a href="Products.html"><i class="i3"></i>Products</a></li>
+                <li><a href="orders.html"><i class="i4"></i>Orders</a></li>
+                <li><a href="MyNotes.html"><i class="i5"></i>My Notes</a></li>
+                <li><a href="login_pg.html"><i class="i6"></i>Log Out</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <h2>Admin Notes</h2>
+            <div class="notes">
+                <h3>Display Notes</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Note Id</th>
+                            <th>Note Text</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>
+                                <form action="/edit_notes" method="post">
+                                    <input type="hidden" name="note_id" value="{{ row[0] }}">
+                                    <button type="submit" formaction="/delete_notes">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    
+            <div class="add-note">
+                <h3>Add Note</h3>
+                <form id="add-note-form" action="/add_note" method="POST"> <!-- Specify action and method -->
+                    <textarea name="note_text" id="note_text" placeholder="Enter your note here"></textarea> <!-- Updated name attribute -->
+                    <button type="submit">Add Note</button>
+                </form>
+            </div>
+        
+</body>
+</html>

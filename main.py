@@ -15,6 +15,319 @@ from flask import session
 
 app = Flask(__name__)
 app.secret_key = '03025202775Abc$'  # replace 'your secret key' with your actual secret key
+
+admin_username = 'site_admin'
+admin_password = 'admin_123'
+
+@app.route('/login_pg.html')
+def index():
+    return render_template('login_pg.html')
+
+@app.route('/check_admin', methods=['POST'])
+def check_admin():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if admin_username==username and admin_password==password:
+            return redirect('admin_pg.html')
+        return redirect('/login_pg.html')
+
+@app.route('/admin_pg.html')
+def index2():
+     users,address,category,product,order,data = Total_Values()
+     return render_template('admin_pg.html',users=users,address=address,category=category,product=product,order=order,data=data)
+
+
+def Total_Values():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM USERS")
+    users=cursor.fetchone()[0]
+    address = cursor.execute("SELECT COUNT(*) FROM PRODUCT")
+    address=cursor.fetchone()[0]
+    category = cursor.execute("SELECT COUNT(*) FROM ORDERS")
+    category=cursor.fetchone()[0]
+    product = cursor.execute("SELECT COUNT(*) FROM CATEGORY")
+    product=cursor.fetchone()[0]
+    order = cursor.execute("SELECT COUNT(*) FROM ADDRESSES")
+    order=cursor.fetchone()[0]
+    cursor.execute("SELECT ORDERID,STATUS FROM ORDERSSTATUS")
+    data = cursor.fetchall()
+    conn.close()
+    return users,address,category,product,order,data
+
+@app.route('/Customer.html')
+def index3():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT USERID,USERPASSWORD,USEREMAIL,USERNAME,USERCONTACT FROM USERS WHERE USERID <>35 ORDER BY USERID")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('Customer.html',data=data)
+
+@app.route('/MyNotes.html')
+def index4():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT NOTE_ID,NOTE_TEXT FROM ADMIN_NOTES ORDER BY NOTE_ID")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('MyNotes.html',data=data)
+
+@app.route('/Products.html')
+def index5():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT PRODUCTID,PRODUCTNAME,PRODUCTCONDITION,PRODUCTDESCRIPTION,PRODUCTPRICE,USEREMAIL,CATEGORY FROM PRODUCT ORDER BY PRODUCTID")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('Products.html',data=data)
+
+@app.route('/orders.html')
+def index6():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT ORDERID,ORDERDATE FROM ORDERS ORDER BY ORDERID")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('orders.html',data=data)
+
+@app.route('/add_note', methods=['POST'])
+def add_note():
+    if request.method == 'POST':
+        note_text = request.form['note_text']
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO admin_notes (note_text) VALUES (?)', (note_text,))
+        conn.commit()
+        conn.close()
+    return redirect('/MyNotes.html')
+
+@app.route('/edit_user', methods=['POST'])
+def edit_user():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        user_password = request.form['user_password']
+        user_email = request.form['user_email']
+        user_name = request.form['user_name']
+        user_contact = request.form['user_contact']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        update_query = "UPDATE users SET "
+        params = []
+        if user_password:
+            update_query += "userpassword=?, "
+            params.append(user_password)
+
+        if user_email:
+            update_query += "useremail=?, "
+            params.append(user_email)
+
+        if user_name:
+            update_query += "username=?, "
+            params.append(user_name)
+
+        if user_contact:
+            update_query += "usercontact=?, "
+            params.append(user_contact)
+
+        update_query = update_query.rstrip(', ')
+
+        update_query += " WHERE userid=?"
+        params.append(user_id)
+
+        cursor.execute(update_query, tuple(params))
+        connection.commit()
+        connection.close()
+        
+    return redirect('/Customer.html')
+
+@app.route('/edit_product', methods=['POST'])
+def edit_product():
+    if request.method == 'POST':
+        product_id = request.form['product_id']
+        product_name = request.form['product_name']
+        product_condition = request.form['Product_Condition']
+        product_description = request.form['Product_Description']
+        product_price = request.form['Product_Price']
+        user_email = request.form['User_Email']
+        product_category = request.form['Product_Category']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        update_query = "UPDATE PRODUCT SET "
+        params = []
+        if product_name:
+            update_query += "PRODUCTNAME=?, "
+            params.append(product_name)
+
+        if product_condition:
+            update_query += "PRODUCTCONDITION=?, "
+            params.append(product_condition)
+
+        if product_description:
+            update_query += "PRODUCTDESCRIPTION=?, "
+            params.append(product_description)
+
+        if product_price:
+            update_query += "PRODUCTPRICE=?, "
+            params.append(product_price)
+        
+        if user_email:
+            update_query += "USEREMAIL=?, "
+            params.append(user_email)
+
+        update_query = update_query.rstrip(', ')
+
+        update_query += " WHERE PRODUCTID=?"
+        params.append(product_id)
+
+        cursor.execute(update_query, tuple(params))
+        connection.commit()
+        connection.close()
+        
+    return redirect('/Products.html')
+
+
+@app.route('/edit_order', methods=['POST'])
+def edit_order():
+    if request.method == 'POST':
+        order_id = request.form['order_id']
+        order_date = request.form['order_date']
+        shipping_cost = request.form['shipping_cost']
+        shipping_address_id = request.form['shipping_address_id']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        update_query = "UPDATE ORDERS SET "
+        params = []
+        if order_date:
+            update_query += "ORDERDATE=?, "
+            params.append(order_date)
+
+        if shipping_cost:
+            update_query += "SHIPPINGCOST=?, "
+            params.append(shipping_cost)
+
+        if shipping_address_id:
+            update_query += "SHIPPINGADDRESSID=?, "
+            params.append(shipping_address_id)
+
+        update_query = update_query.rstrip(', ')
+
+        update_query += " WHERE ORDERID=?"
+        params.append(order_id)
+        cursor.execute(update_query, tuple(params))
+        connection.commit()
+        connection.close()
+        
+    return redirect('/orders.html')
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        user_password = request.form['user_password']
+        user_email = request.form['user_email']
+        user_name = request.form['user_name']
+        user_contact = request.form['user_contact']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)",
+                       (user_id, user_password, user_email, user_name, user_contact))
+        connection.commit()
+        connection.close()
+    return redirect('/Customer.html')
+
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    if request.method == 'POST':
+        product_id = request.form['product_id']
+        product_name = request.form['product_name']
+        product_condition = request.form['product_condition']
+        product_description = request.form['product_description']
+        product_price = request.form['product_price']
+        user_email = request.form['user_email']
+        product_category = request.form['product_category']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO PRODUCT VALUES (?, ?, ?, ?, ?,?,?)",
+                       (product_id, product_name, product_condition,product_description, product_price, user_email, product_category))
+        connection.commit()
+        connection.close()
+    return redirect('/Products.html')
+
+@app.route('/add_order', methods=['POST'])
+def add_order():
+    if request.method == 'POST':
+        order_id = request.form['order_id']
+        order_date = request.form['order_date']
+        shipping_cost = request.form['shipping_cost']
+        shipping_address_id = request.form['shipping_address_id']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO ORDERS VALUES (?, ?, ?, ?)",
+                       (order_id,order_date,shipping_cost,shipping_address_id))
+        connection.commit()
+        connection.close()
+    return redirect('/orders.html')
+
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM users WHERE userid=?", (user_id,))
+        connection.commit()
+        connection.close()
+    return redirect('/Customer.html')
+
+@app.route('/delete_product', methods=['POST'])
+def delete_product():
+    if request.method == 'POST':
+        product_id = request.form['product_id']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM PRODUCT WHERE PRODUCTID=?", (product_id,))
+        connection.commit()
+        connection.close()
+    return redirect('/Products.html')
+
+@app.route('/delete_order', methods=['POST'])
+def delete_order():
+    if request.method == 'POST':
+        order_id = request.form['order_id']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM ORDERS WHERE ORDERID=?", (order_id,))
+        connection.commit()
+        connection.close()
+    return redirect('/orders.html')
+
+@app.route('/delete_notes', methods=['POST'])
+def delete_notes():
+    if request.method == 'POST':
+        note_id = request.form['note_id']
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM ADMIN_NOTES WHERE NOTE_ID=?", (note_id,))
+        connection.commit()
+        connection.close()
+    return redirect('/MyNotes.html')
+
+'''
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
+cursor.execute(''INSERT INTO ORDERSSTATUS VALUES(4,'Delivered')'')
+conn.commit()
+conn.close()
+'''
+
+
+
+
+
+
 @app.route("/temp2")
 def temp2():
     return render_template("malefashion-master/temp2.html")

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Page</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login.css') }}">
+    <h1 id="main_head">TradeForge</h1>
+</head>
+<body>
+   <div id="form" class="log">
+    <form method="post" action="/check_admin">
+    <h1 id="head1">Admin Login</h1><br>
+    <label for="input1" id="label1"></label><br>
+    <input type="text" id="input1" placeholder="Enter username" name="username"><br><br>
+    <label for="input2" id="label2"></label><br>
+    <input type="text" id="input2" placeholder="Enter password" name="password"><br><br>
+    <button type="submit" id="btn1" value="submit">Login</button><br>
+    </form>
+   </div>
+   <script src="{{ url_for('static', filename='login.js') }}"></script>
+   <script>
+     var errorMessage = "{{ error }}";
+    if (errorMessage !== "") {
+        window.alert(errorMessage);
+    }
+   </script>
+</body>
+</html>

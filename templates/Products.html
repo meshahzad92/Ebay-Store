@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='prd.css') }}">
+    <title>Admin Page</title>
+</head>
+<body>
+    <div class="sidebar">
+        <header>Admin Dashboard</header>
+        <ul>
+            <li><a href="admin_pg.html"><i class="i1"></i>Dashboard</a></li>
+            <li><a href="Customer.html"><i class="i2"></i>Customer</a></li>
+            <li><a href="Products.html"><i class="i3"></i>Products</a></li>
+            <li><a href="orders.html"><i class="i4"></i>Orders</a></li>
+            <li><a href="MyNotes.html"><i class="i5"></i>My Notes</a></li>
+            <li><a href="login_pg.html"><i class="i6"></i>Log Out</a></li>
+        </ul>
+    </div>
+    
+    <div class="content">
+        <h2>Product Details</h2>
+        <div class="notes">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Id</th>
+                        <th>Product Name</th>
+                        <th>Product Condition</th>
+                        <th>Product Description</th>
+                        <th>Product Price</th>
+                        <th>User Email</th>
+                        <th>Product Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                        <td>{{ row[5] }}</td>
+                        <td>{{ row[6] }}</td>
+                        <td>
+                            <form action="/edit_product" method="post" class="edit-form">
+                                <input type="hidden" name="product_id" value="{{ row[0] }}">
+                                <div class="edit-fields">
+                                    <input type="text" name="product_name" placeholder="New Name">
+                                    <input type="text" name="Product_Condition" placeholder="New Condition">
+                                    <input type="text" name="Product_Description" placeholder="New Descsription">
+                                    <input type="text" name="Product_Price" placeholder="New Price">
+                                    <input type="text" name="User_Email" placeholder="New Email">
+                                    <input type="text" name="Product_Category" placeholder="New Category">
+                                </div>
+                                <button type="submit">Modify Details</button>
+                            </form>
+                            <form action="/edit_product" method="post">
+                                <input type="hidden" name="product_id" value="{{ row[0] }}">
+                                <button type="submit" formaction="/delete_product">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h2>Add Product</h2>
+<form action="/add_product" method="post" class="addus">
+    <label for="product_id">Product ID:</label>
+    <input type="text" id="product_id" name="product_id"><br><br>
+    <label for="product_name">Product Name:</label>
+    <input type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_condition">Product Condition:</label>
+    <input type="text" id="product_condition" name="product_condition"><br><br>
+    <label for="product_description">Product Description:</label>
+    <input type="text" id="product_description" name="product_description"><br><br>
+    <label for="product_price">Product Price:</label>
+    <input type="text" id="product_price" name="product_price"><br><br>
+    <label for="user_email">User Email:</label>
+    <input type="text" id="user_email" name="user_email"><br><br>
+    <label for="product_category">Product Category:</label>
+    <input type="text" id="product_category" name="product_category"><br><br>
+    <button type="submit">Add Product</button>
+</form>
+        </div>
+</body>
+</html>
