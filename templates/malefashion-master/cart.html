@@ -37,33 +37,30 @@
                
                 <div class="px-lg-5 ml-lg-5" id="total">    TOTAL</div>
             </div>
+  
+            {% set total_price = 0 %}
             {% for index in range(products|length) %}
             <div class="d-flex flex-row justify-content-between align-items-center pt-lg-4 pt-2 pb-3 border-bottom mobile">
                 <div class="d-flex flex-row align-items-center">
                     {% if imagePaths[index] %}
-            <div>
-                <img 
-                src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}"
-                width="150" height="150" alt="" id="image_{{ index }}" class="product-image" data-product-id="{{ products[index][0] }}">
-            </div>
-
-
-
-                  
+                    <div>
+                        <img 
+                        src="{{ url_for('static', filename=imagePaths[index][0][0][7:]) }}"
+                        width="150" height="150" alt="" id="image_{{ index }}" class="product-image" data-product-id="{{ products[index][0] }}">
+                    </div>
                     {% endif %}
-           <div class="d-flex flex-column pl-md-3 pl-1">
-                <div><h6>{{ products[index][1] }}</h6></div>
-                <div >ID: <span class="pl-2">{{ products[index][0] }}</span></div>
-                <div>Condition: <span class="pl-3">{{ products[index][2] }}</span></div>
-            </div>                    
+                    <div class="d-flex flex-column pl-md-3 pl-1">
+                        <div><h6>{{ products[index][1] }}</h6></div>
+                        <div >ID: <span class="pl-2">{{ products[index][0] }}</span></div>
+                        <div>Condition: <span class="pl-3">{{ products[index][2] }}</span></div>
+                    </div>                    
                 </div>
                 <div class="pl-md-0 pl-1"><b>{{ products[index][4] }}</b></div>
-
-                <div class="pl-md-0 pl-1"><b>{{ products[index][4] }}</b></div>
-<button class="btn btn-danger remove-from-cart-btn" data-product-id="{{products[index][0]}}">Remove</button>
-
+                <button class="btn btn-danger remove-from-cart-btn" data-product-id="{{products[index][0]}}">Remove</button>
             </div>
+            {% set total_price = total_price + products[index][4]|float %}
             {% endfor %}
+            
  
 
         </div>
@@ -77,7 +74,9 @@
                     <button class="btn btn-sm bg-light border border-dark">GO BACK</button>
                 </div>
                 <div class="px-md-0 px-1" id="footer-font">
-                    <b class="pl-md-4">SUBTOTAL<span class="pl-md-4">$61.78</span></b>
+                    
+                        <b class="pl-md-4">SUBTOTAL<span class="pl-md-4">${{ total_price }}</span></b>
+                    
                 </div>
                 <div>
 <!-- Button HTML -->

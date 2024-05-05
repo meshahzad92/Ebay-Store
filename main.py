@@ -828,6 +828,8 @@ def placeorder():
         if databasee.is_user_logged_in(session)==False:
             return redirect(url_for('login'))
         products_id=databasee.execute_query("select productId from cart where userEmail=?",(session["userEmail"],))
+        print("i am in checkout post") 
+        print(products_id)
         databasee.execute_query("delete from cart where userEmail=?",(session["userEmail"],))
         country = request.form.get('country')
         street = request.form.get('street')
@@ -843,14 +845,19 @@ def placeorder():
         address = str(street or "") + "," + str(suite or "") + "," + str(city or "") + "," + str(state or "") + "," + str(zipCode or "") + "," + str(country or "") + "," + str(phone or "")
         databasee.execute_query("insert into orders (orderDate,address ,status) values(?,?,?)",(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),address,"Pending"))
         latest_order_id=databasee.execute_query("select max(orderId) from orders",())
+        print("---------------",products_id)
+        for product_id in products_id:
+            print("i am in for loop")
+            print(product_id[0])
         for product_id in products_id:
             seller_email = databasee.execute_query("select userEmail from product where productId=?", (product_id[0],))
             print(seller_email)
             seller_email_str = seller_email[0][0] if seller_email else None
             print(seller_email_str)
-            databasee.execute_query("insert into orderHasProducts (orderId,productId,sellerId,buyerId,status) values(?,?,?,?,?)", (latest_order_id[0][0], product_id[0], seller_email_str, session["userEmail"],"Pending"))
+            databasee.execute_query("insert into orderHasProducts (orderId,productId,sellerId,buyerId,status,sellerStatus) values(?,?,?,?,?,?)", (latest_order_id[0][0], product_id[0], seller_email_str, session["userEmail"],"not","Pending"))
             databasee.execute_query("update product set sold='True' where productId=?",(product_id[0],))
-            return redirect(url_for("home"))
+            databasee.execute_query("delete from product where productId=?",(product_id[0],))
+            
         
         return redirect(url_for("home"))
 
@@ -906,9 +913,9 @@ def myPendingOrders():
         product.category, product.sold
     from orders 
     join orderHasProducts on orders.orderId = orderHasProducts.orderId 
-    join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="Pending"
+    join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="not" or orderHasProducts.status="Pending"
 '''
-        return redirect(url_for('ordersTemplate', query=query,buttonStatus="visible"))
+        return redirect(url_for('ordersTemplate2', query=query,buttonStatus="visible"))
 
 @app.route("/myRecievedOrders",methods=["GET","POST"])
 def myRecievedOrders():
@@ -925,7 +932,7 @@ def myRecievedOrders():
     join orderHasProducts on orders.orderId = orderHasProducts.orderId 
     join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="Delivered"
 '''
-        return redirect(url_for('ordersTemplate', query=query,buttonStatus="hidden"))
+        return redirect(url_for('ordersTemplate2', query=query,buttonStatus="hidden"))
 
 @app.route("/myCancelledOrders",methods=["GET","POST"])
 def myCancelledOrders():
@@ -942,7 +949,7 @@ def myCancelledOrders():
     join orderHasProducts on orders.orderId = orderHasProducts.orderId 
     join product on product.productId = orderHasProducts.productId where buyerId=? and orderHasProducts.status="Cancelled"
 '''
-        return redirect(url_for('ordersTemplate', query=query,buttonStatus="hidden"))
+        return redirect(url_for('ordersTemplate2', query=query,buttonStatus="hidden"))
 
 @app.route("/deliverToBuyer", methods=["GET", "POST"])
 def deliverToBuyer():
@@ -957,7 +964,7 @@ def deliverToBuyer():
         product.category, product.sold
     from orders 
     join orderHasProducts on orders.orderId = orderHasProducts.orderId 
-    join product on product.productId = orderHasProducts.productId where sellerId    =? and orderHasProducts.status="Pending"
+    join product on product.productId = orderHasProducts.productId where sellerId    =? and orderHasProducts.sellerStatus="Pending"
 '''
         return redirect(url_for('ordersTemplate', query=query,buttonStatus="visible"))
 
@@ -974,7 +981,7 @@ def deliveredToBuyer():
         product.category, product.sold
     from orders 
     join orderHasProducts on orders.orderId = orderHasProducts.orderId 
-    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.status="Delivered"
+    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.sellerStatus="Delivered"
 '''
         return redirect(url_for('ordersTemplate', query=query,buttonStatus="hidden"))
 
@@ -991,7 +998,7 @@ def cancelledToBuyer():
         product.category, product.sold
     from orders 
     join orderHasProducts on orders.orderId = orderHasProducts.orderId 
-    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.status="Cancelled"
+    join product on product.productId = orderHasProducts.productId where sellerId=? and orderHasProducts.sellerStatus="Cancelled"
 '''
     return redirect(url_for('ordersTemplate', query=query,buttonStatus="hidden"))
 
@@ -1011,7 +1018,7 @@ def ordersTemplate():
 
         image_paths = [
         ]
-        print("from here order to deliver")
+        print("from here order to deliver1")
         print(orders)
         if not orders:
             return redirect(url_for("home"))
@@ -1025,6 +1032,30 @@ def ordersTemplate():
 
 
 
+@app.route("/ordersTemplate2", methods=["GET", "POST"])
+def ordersTemplate2():
+    if request.method == "GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        
+        query=request.args.get('query')
+        buttonStatus=request.args.get('buttonStatus')
+        print(query)
+        orders = databasee.execute_query(query, (session["userEmail"],))
+
+        image_paths = [
+        ]
+        print("from here order to deliver2")
+        print(orders)
+        if not orders:
+            return redirect(url_for("home"))
+        for order in orders:
+             image_paths.append(databasee.execute_query("SELECT imagePath FROM productImages WHERE productId = ? ORDER BY productId ASC LIMIT 1", (order[4],)))
+        print(image_paths)
+        # for order in orders:
+        #     print(order)                    
+        return render_template("malefashion-master/viewOrdersToDeliver2.html",products=orders,imagePaths=image_paths,buttonStatus=buttonStatus)   
+
 
 @app.route("/cancel", methods=["GET", "POST"])
 def cancel():
@@ -1032,7 +1063,7 @@ def cancel():
         return redirect(url_for("home"))
     if request.method == "POST":
         productId=request.form.get("productId")
-        databasee.execute_query("update orderHasProducts set status='Cancelled' where productId=?",(productId,))
+        databasee.execute_query("update orderHasProducts set status='Cancelled',sellerStatus='Cancelled' where productId=?",(productId,))
         return redirect(url_for("orders"))    
 
 
@@ -1043,9 +1074,41 @@ def deliver():
     if request.method == "GET":
         return redirect(url_for("home"))
     if request.method == "POST":
+        print("i am in deliver 1")
         productId=request.form.get("productId")
-        databasee.execute_query("update orderHasProducts set status='Delivered' where productId=?",(productId,))
+        databasee.execute_query("update orderHasProducts set status='Pending',sellerStatus='Delivered' where productId=?",(productId,))
         return redirect(url_for("orders"))
 
+
+
+
+
+
+
+
+
+
+@app.route("/cancel2", methods=["GET", "POST"])
+def cancel2():
+    if request.method == "GET":
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        productId=request.form.get("productId")
+        databasee.execute_query("update orderHasProducts set status='Cancelled',sellerStatus='Cancelled' where productId=?",(productId,))
+        return redirect(url_for("orders"))    
+
+
+
+
+@app.route('/deliver2', methods=['GET', 'POST'])
+def deliver2():
+    if request.method == "GET":
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        print("I AM IN DELIVER 2")
+        productId=request.form.get("productId")
+        print("i am in deliver 2")
+        databasee.execute_query("update orderHasProducts set status='Delivered',sellerStatus='Delivered' where productId=?",(productId,))
+        return redirect(url_for("orders"))
 if __name__ == '__main__':
     app.run()

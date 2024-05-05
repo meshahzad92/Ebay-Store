@@ -6,56 +6,49 @@
     <title>Wishlist</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* Add your custom CSS here */
+    </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Home</a>
     </nav>
 
+    <!-- Product Cards -->
     <div class="container mt-5">
         <div class="row">
-			{% for index in range(products|length) %}
+            {% for index in range(products|length) %}
             <div class="col-md-4 mb-4">
                 <div class="card">
+                    <!-- Product Image -->
                     {% set imagePath = imagePaths[index][0][0][7:] %}
-<div style="width: 300px; height: 300px; overflow: hidden; margin: 0; padding: 0;">
-    <img src="{{ url_for('static', filename=imagePath) }}" style="width: 100%; height: 100%; object-fit: cover; margin: 0; padding: 0;" class="card-img-top" alt="Product Image">
-</div>
+                    <div style="width: 300px; height: 300px; overflow: hidden; margin: 0; padding: 0;">
+                        <img src="{{ url_for('static', filename=imagePath) }}" style="width: 100%; height: 100%; object-fit: cover; margin: 0; padding: 0;" class="card-img-top" alt="Product Image">
+                    </div>
 
+                    <!-- Product Details -->
                     <div class="card-body">
                         <h5 class="card-title">{{ products[index][1] }}</h5>
                         <p class="card-text">{{ products[index][3] }}</p>
                         <div class="d-flex justify-content-between">
- 					    
-
-						<form action="/cart" method="POST">
-    					<input type="hidden" name="productId" value="{{products[index][0]}}">
-    					<button type="submit" class="btn btn-primary btn-add-to-cart">Add to Cart</button>
-						</form>
-
-						<form action="/removeFromWishList" method="POST">
-    					<input type="hidden" name="productId" value="{{products[index][0]}}">
-    					<button type="submit" class="btn btn-danger btn-remove-from-cart">Remove from WishList</button>
-						</form>
-
-
-
-
-
-
-
-
-
-
-							
-
-
-						</div>
+                            <!-- Add to Cart Form -->
+                            <form action="/cart" method="POST">
+                                <input type="hidden" name="productId" value="{{products[index][0]}}">
+                                <button type="submit" class="btn btn-primary btn-add-to-cart">Add to Cart</button>
+                            </form>
+                            <!-- Remove from Wishlist Form -->
+                            <form action="/removeFromWishList" method="POST">
+                                <input type="hidden" name="productId" value="{{products[index][0]}}">
+                                <button type="submit" class="btn btn-danger btn-remove-from-wishlist">Remove from Wishlist</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-			    {% endfor %}     
-
+            {% endfor %}     
             <!-- Add more product cards here -->
         </div>
     </div>
