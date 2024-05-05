@@ -32,8 +32,8 @@ def home():
         books=databasee.execute_query("select * from product where category='Books'",())
         latest_products=databasee.execute_query("select * from product   ORDER BY productId DESC LIMIT 50")
         on_sale=databasee.execute_query("select * from product  where category='Motors'  ORDER BY productId  ASC LIMIT 50")
-        best_seller=databasee.execute_query("select * from product  where category='Motors'  ORDER BY productId  ASC LIMIT 50")
-        top_viewed=databasee.execute_query("select * from product  where category='Motors'  ORDER BY productId  ASC LIMIT 50")
+        best_seller=databasee.execute_query("select * from product  where category='Fashion'  ORDER BY productId  ASC LIMIT 50")
+        top_viewed=databasee.execute_query("select * from product  where category='Home & Garden'  ORDER BY productId  ASC LIMIT 50")
 
         electronics_imagePaths=[]
         fashion_imagePaths=[]
