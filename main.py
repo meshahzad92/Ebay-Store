@@ -628,6 +628,7 @@ def login():
                 # if 'referrer' in session:
                 #     referrer = session.pop('referrer')  # Get and remove the referrer URL from session
                 #     return redirect(referrer)
+
                 return redirect(url_for("home"))  # Redirect to the dashboard route
             else:
                 print("password dont matched")
@@ -1419,5 +1420,54 @@ def deliver2():
         print("i am in deliver 2")
         databasee.execute_query("update orderHasProducts set status='Delivered',sellerStatus='Delivered' where productId=?",(productId,))
         return redirect(url_for("orders"))
+    
+@app.route("/chats",methods=['GET','POST'])
+def chats():
+  
+    if request.method=="POST" or request.method=="GET":
+        if databasee.is_user_logged_in(session)==False:
+            return redirect(url_for('login'))
+        senderEmail=session["userEmail"]
+        print(session["userEmail"])
+        recieverEmails=databasee.execute_query("select distinct recieverEmail from chats where senderEmail=?",(session["userEmail"],)) 
+        print(recieverEmails)
+
+        messages=[]
+        if 'email' in request.form:
+            email = request.form.get('email')
+            messages = databasee.execute_query("SELECT message,senderEmail,recieverEmail FROM chats WHERE senderEmail=? AND recieverEmail=?", ( session["userEmail"],email))
+            print(messages)
+                
+        return render_template("malefashion-master/chats.html",recieverEmails=recieverEmails,messages=messages)
+
+    
+@app.route('/submitMessage', methods=['POST'])
+def submit_message():
+    # Get message content and sender's email from the request parameters
+    message_content = request.args.get('message')
+    sender_email = request.args.get('senderEmail')
+
+    # Handle the message and sender's email as needed
+    print("Received message:", message_content)
+    print("Sender's email:", sender_email)
+    query = "INSERT INTO chats (senderEmail, recieverEmail, message) VALUES (?, ?, ?)"
+    values = (session["userEmail"],sender_email, message_content)
+    databasee.execute_query(query, values)
+    return redirect(url_for("chats"))
+
+@app.route("/startChat",methods=["GET","POST"])
+def startChat():
+    if request.method=="POST":
+        product_id = request.form.get('productId')
+        sender_email=databasee.execute_query("select userEmail from product where productId=?",(product_id,))
+        print(sender_email)
+        query = "INSERT INTO chats (senderEmail, recieverEmail, message) VALUES (?, ?, ?)"
+        values = (session["userEmail"],sender_email[0][0], "Hey There How Are You")      
+        databasee.execute_query(query, values)
+        print("here i am in the start chat")
+        print(sender_email)
+        return redirect(url_for("chats"))
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5500)

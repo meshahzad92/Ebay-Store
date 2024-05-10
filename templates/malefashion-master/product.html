@@ -235,6 +235,12 @@
     <span class="bottom-key-1"></span>
     <span class="bottom-key-2"></span>
 </button>
+<button class="fancy chatWithSeller" data-product-id="{{ product[0] }}">
+    <span class="top-key"></span>
+    <span class="text">Chat With Seller</span>
+    <span class="bottom-key-1"></span>
+    <span class="bottom-key-2"></span>
+</button>
 	<i class="fa fa-heart text-muted addToWishlistIcon" data-product-id="{{ product[0] }}"></i>
 
         			</div>
@@ -281,6 +287,9 @@
         form.submit();
     }
 </script>
+
+
+
 
 <script>
     document.querySelectorAll('.addToWishlistIcon').forEach(icon => {
@@ -455,6 +464,49 @@
         });
     });
 </script>
+
+
+
+<script>
+    // Wait for the DOM content to be fully loaded before adding event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all elements with the class .chatWithSeller and attach event listeners
+        document.querySelectorAll('.chatWithSeller').forEach(button => {
+            button.addEventListener('click', chatWithSeller);
+        });
+    });
+
+    function chatWithSeller(event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+        
+        // Get the productId from the clicked button's data-product-id attribute
+        const productId = this.getAttribute('data-product-id');
+        
+        // Create a new form element
+        const form = document.createElement('form');
+        
+        // Set the form action and method
+        form.action = '/startChat';
+        form.method = 'POST';
+        
+        // Create a hidden input field for the productId and set its value
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'productId';
+        input.value = productId;
+        
+        // Append the hidden input field to the form
+        form.appendChild(input);
+        
+        // Append the form to the document body
+        document.body.appendChild(form);
+        
+        // Submit the form
+        form.submit();
+    }
+</script>
+
 
 
 </body>

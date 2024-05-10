@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bootstrap Messaging Interface</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Custom Styles */
+    body {
+      background-color: #f3f5f8;
+      font-family: Arial, sans-serif;
+    }
+    .message-list {
+      height: 400px;
+      overflow-y: auto;
+    }
+    .message-list .message {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .message-list .message .message-text {
+      border-radius: 15px;
+      padding: 15px;
+      font-size: 16px;
+    }
+    .message-list .message .message-text.sent {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .message-list .message .message-text.received {
+      background-color: #e9ecef;
+      color: #333;
+    }
+    .input-group-text {
+      background-color: #007bff;
+      border-color: #007bff;
+      color: #fff;
+    }
+    .input-group-text:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      transition: background-color 0.3s;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .list-group-item {
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 18px;
+    }
+    .list-group-item:hover {
+      background-color: #e9ecef;
+    }
+    .btn-home {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #007bff;
+      border-color: #007bff;
+      transition: background-color 0.3s;
+    }
+    .btn-home:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .emoji-btn {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Home Button -->
+<a href="#" class="btn btn-primary btn-home"><i class="fas fa-home"></i> Home</a>
+
+<div class="container-fluid mt-5">
+  <div class="row">
+    <div class="col-md-4">
+      <!-- User List -->
+      <h2 class="text-primary">User List</h2>
+      <ul class="list-group">
+        {% for index in range(recieverEmails|length) %}
+          <li class="list-group-item email-id" email-id="{{ recieverEmails[index][0] }}">{{ recieverEmails[index][0] }}</li>
+        {% endfor %}
+      </ul>  
+    </div>
+    <div class="col-md-8">
+      <!-- Messages -->
+      <h2 class="text-primary">Messages</h2>
+      <div class="message-list">
+        <!-- Example Messages -->
+        {% if messages %}
+        {% for index in range(messages|length) %}
+        <div class="message">
+          <div class="message-text received">
+              {{messages[index][0]}} <!-- Display message content -->
+              <span hidden style="font-weight: bold;">Sender: <span hidden style="font-size: smaller;" class="email-to-send-message"   email-to-send-message= "{{messages[index][2]}}"  >{{messages[index][2]}}</span></span> <!-- Display sender's email with styling -->
+            </div>
+      </div>
+      
+        {% endfor %}
+      {% endif %}
+      
+      </div>
+      <!-- Message Input -->
+      <div class="input-group mt-3">
+        <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  function addReaction(emoji) {
+    alert('You reacted with: ' + emoji);
+    // You can implement your logic to add the reaction here
+  }
+</script>
+
+<script>
+  document.querySelectorAll('.email-id').forEach(item => {
+    item.addEventListener('click', sendPostRequest);
+  });
+
+  function sendPostRequest(event) {
+    event.preventDefault();
+    const email = this.getAttribute('email-id');
+    const form = document.createElement('form');
+    form.action = '/chats'; // Endpoint to handle the POST request
+    form.method = 'POST';
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'email';
+    input.value = email;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
+<script>
+  function sendMessage() {
+      // Get message content from input field
+      var messageContent = document.getElementById("messageInput").value;
+
+      // Get sender's email from attribute
+      var senderEmail = document.querySelector('.email-to-send-message').getAttribute('email-to-send-message');
+
+      // Construct the POST request URL with message content and sender's email as parameters
+      var url = "/submitMessage" + "?message=" + encodeURIComponent(messageContent) + "&senderEmail=" + encodeURIComponent(senderEmail);
+
+      // Create POST request
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              // Request was successful
+              console.log("Message sent successfully!");
+          }
+      };
+      xhr.send();
+  }
+</script>
+
+
+</body>
+</html>
