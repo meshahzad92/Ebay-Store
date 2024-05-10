@@ -1166,7 +1166,7 @@ def placeorder():
             print(seller_email_str)
             databasee.execute_query("insert into orderHasProducts (orderId,productId,sellerId,buyerId,status,sellerStatus) values(?,?,?,?,?,?)", (latest_order_id[0][0], product_id[0], seller_email_str, session["userEmail"],"not","Pending"))
             databasee.execute_query("update product set sold='True' where productId=?",(product_id[0],))
-            databasee.execute_query("delete from product where productId=?",(product_id[0],))
+            ##databasee.execute_query("delete from product where productId=?",(product_id[0],))
             
         
         return redirect(url_for("home"))
