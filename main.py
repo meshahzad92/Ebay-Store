@@ -7,14 +7,14 @@ import os
 import databasee
 from werkzeug.utils import secure_filename
 from datetime import datetime
-# Inside your code
+
 
 
 from flask import url_for,flash
 from flask import session
 
 app = Flask(__name__)
-app.secret_key = '03025202775Abc$'  # replace 'your secret key' with your actual secret key
+app.secret_key = '03025202775Abc$' 
 
 admin_username = 'site_admin'
 admin_password = 'admin_123'
@@ -460,7 +460,7 @@ def sell():
     elif request.method == "POST":
         print("I am in POST")
     
-    # Check if the request contains files
+
         if 'images[]' in request.files:
             print("Files found")
             productName = request.form.get("productName", "")
@@ -468,25 +468,25 @@ def sell():
             productDescription = request.form.get("productDescription", "")
             productPrice = request.form.get("productPrice", "")
 
-        # Insert product details into the database
+        
             databasee.execute_query("INSERT INTO product (productName, productCondition, productDescription, productPrice, userEmail, category) VALUES (?, ?, ?, ?, ?, ?)", 
                         (productName, productCondition, productDescription, productPrice, session["userEmail"], request.form.get("selectCategory", "")))
 
         
-        # Get the ID of the latest inserted product
+        
             latestProductId = databasee.execute_query("SELECT MAX(productId) FROM product")[0][0]
         
-# Process each image
+
             images = request.files.getlist('images[]')
             for i, image in enumerate(images):
-    # Save the image to a directory
+    
                 if image.filename != '':
-                    filename = secure_filename(image.filename) # type: ignore
+                    filename = secure_filename(image.filename) 
                     path = os.path.join('static/productImages/', f"{latestProductId}_{i+1}_{filename}")
                     image.save(path)
 
     
-    # Insert the image path into the database
+    
                 databasee.execute_query("INSERT INTO productImages (productId, imagePath) VALUES (?, ?)", (latestProductId, path))
 
     
@@ -544,17 +544,17 @@ def updateAddress():
         return render_template("malefashion-master/updateAddress.html", addresses=addresses)
     
     elif request.method == "POST":
-        # Retrieve the address ID from the form data
+        
         address_id = request.form.get("addressId")
         
-        # Use the address ID to fetch the address details from the database
+    
         result = databasee.execute_query("SELECT * FROM addresses WHERE userAddressId=?", (address_id,))
         print(result)
         if result:
-            # Instantiate the address object
+        
             addressObject = databasee.addressess()
             
-            # Assign values to addressObject attributes
+            
             addressObject.userContact = result[0][1]
             addressObject.userCountry = result[0][2]
             addressObject.userCity = result[0][3]
@@ -572,10 +572,9 @@ def deleteAddress():
         addresses=databasee.execute_query("select * from addresses where userEmail=?",(session["userEmail"],))
         return render_template("malefashion-master/deleteAddress.html",addresses=addresses)
     elif request.method == "POST":
-        # Retrieve the address ID from the form data
         address_id = request.form.get("addressId")
         
-        # Use the address ID to fetch the address details from the database
+
         databasee.execute_query("delete  FROM addresses WHERE userAddressId=?", (address_id,))
         return redirect(url_for("home"))
 
@@ -609,10 +608,10 @@ def login():
         userEmail = request.form['userEmail']
         userPassword = request.form['userPassword']
         print(userEmail,userPassword)
-        # Query to retrieve user based on email
+
         query = "SELECT * FROM users WHERE userEmail = ?"
        
-        # Retrieve user(s) from the database based on email
+   
         users = databasee.Users.getUsers(query, (userEmail,))
 
         # Check if any user matches the provided email
@@ -897,8 +896,6 @@ def wishlist():
         
         return redirect(url_for('home'))  # Redirect to home page after adding to wishlist
 
-    # Handle GET request to view wishlist
-    # You can render a wishlist template here
     return 'View Wishlist'  # Example response for viewing wishlist
 
 @app.route('/viewWishList', methods=['GET', 'POST'])
@@ -965,8 +962,7 @@ def cart():
     if request.method == "POST":
         if databasee.is_user_logged_in(session)==False:
             return redirect(url_for('login')   )
-        # Process the product ID and add it to the cart
-        # You can perform any
+
         product_id = request.form.get('productId')
         print(product_id)
         if databasee.execute_query("SELECT * FROM cart WHERE productId = ? AND userEmail = ?", (product_id, session["userEmail"])):
